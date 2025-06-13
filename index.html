@@ -1,0 +1,2912 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz finale</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .btn { padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 0.25rem 0.25rem 0.25rem 0; }
+    .btn:hover { background: #1d4ed8; }
+    .correct { color: green; }
+    .incorrect { color: red; }
+    .question { margin-bottom: 1em; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Quiz finale</h1>
+  <div id="start">
+    <p>Seleziona una modalità:</p>
+    <button class="btn" onclick="startQuiz('normale')">Normale</button>
+    <button class="btn" onclick="startQuiz('errori')">Errori</button>
+    <button class="btn" onclick="startQuiz('esame')">Esame completo</button>
+  </div>
+  <div id="quiz" class="hidden"></div>
+  <div id="results" class="hidden"></div>
+  <script>
+const allQuestions = [
+  {
+    "domanda": "Cosa si intende per fonti rinnovabili:",
+    "risposte": [
+      "Sono fonti di energia soggette ad esaurimento ma ricaricabili",
+      "Sono fonti di energia soggette ad esaurimento ma rinnovabili",
+      "Sono fonti di energia non soggette ad esaurimento",
+      "Sono fonti di energia che possono essere rinnovate"
+    ],
+    "corretta": "Sono fonti di energia non soggette ad esaurimento"
+  },
+  {
+    "domanda": "Per food delivery si intende un servizio a domicilio di:",
+    "risposte": [
+      "Alimenti e prodotti non finalizzati, pasti pronti e prodotti pronti al consume",
+      "Alimenti e prodotti non finalizzati",
+      "Pasti pronti e prodotti pronti al consumo",
+      "Nessuna delle precedenti"
+    ],
+    "corretta": "Alimenti e prodotti non finalizzati, pasti pronti e prodotti pronti al consume"
+  },
+  {
+    "domanda": "Dove viene prodotto maggiore Spreco Alimentare?",
+    "risposte": [
+      "Fase di Produzione",
+      "Ambiente Domestico",
+      "Fase di Lavorazione",
+      "Fase di Distribuzione"
+    ],
+    "corretta": "Ambiente Domestico"
+  },
+  {
+    "domanda": "Cosa si intende per cucina circolare?",
+    "risposte": [
+      "Una cucina costruita in modo che il lavoro possa essere veloce e circolare",
+      "Un tipo di cucina che sia attenta a limitare gli sprechi e che ottimizzi nel miglior modo tutte le risorse",
+      "Una cucina che ha l'obiettivo di rendersi autonoma senza l'utilizzo di risorse esterne",
+      "Un tipo di cucina in cui si utilizzano risorse rinnovabili per essere sostenuta a livello energetico"
+    ],
+    "corretta": "Un tipo di cucina che sia attenta a limitare gli sprechi e che ottimizzi nel miglior modo tutte le risorse"
+  },
+  {
+    "domanda": "Cos'è la perceived quality:",
+    "risposte": [
+      "La percezione del prodotto da parte del mercato",
+      "La percezione del prodotto da parte del consumatore",
+      "La percezione del prodotto da parte del produttore",
+      "Tutte le precedenti"
+    ],
+    "corretta": "La percezione del prodotto da parte del consumatore"
+  },
+  {
+    "domanda": "Le seadas sono un tipico piatto?",
+    "risposte": [
+      "Spagnolo",
+      "Siciliano",
+      "Sardo",
+      "Ischitano"
+    ],
+    "corretta": "Sardo"
+  },
+  {
+    "domanda": "Lo spaghetto freddo con caviale ed erba cipollina sono un piatto iconico di quale Chef?",
+    "risposte": [
+      "Cracco",
+      "Barbieri",
+      "Bartolini",
+      "Marchesi"
+    ],
+    "corretta": "Marchesi"
+  },
+  {
+    "domanda": "Cosa si intende per B2B?",
+    "risposte": [
+      "BUSINESS-TO-BUSINESS",
+      "BUSINESS-TO-BUYERS",
+      "BUYERS-TO-BUSINESS",
+      "BUSINESS-TO-BEST"
+    ],
+    "corretta": "BUSINESS-TO-BUSINESS"
+  },
+  {
+    "domanda": "Junk food e street food rappresentano lo stesso concetto di cucina e gli stessi prodotti?",
+    "risposte": [
+      "Si",
+      "No",
+      "Si ma con una differenza legata ai prodotti",
+      "Si ma solo per il concetto di cucina"
+    ],
+    "corretta": "No"
+  },
+  {
+    "domanda": "Il pesto è una preparazione tipica di quale regione",
+    "risposte": [
+      "Toscana",
+      "Liguria",
+      "Piemonte",
+      "Emilia Romagna"
+    ],
+    "corretta": "Liguria"
+  },
+  {
+    "domanda": "Che cos'è l'Analisi Sensoriale?",
+    "risposte": [
+      "una degustazione condotta sotto la guida di un esperto una valutazione organolettica eseguita usando delle schede specifiche per il prodotto",
+      "una disciplina scientifica che misura, ed elabora statisticamente, le caratteristiche qualitative e/o quantitative dei prodotti in esame",
+      "un assaggio di prodotti",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "una disciplina scientifica che misura, ed elabora statisticamente, le caratteristiche qualitative e/o quantitative dei prodotti in esame"
+  },
+  {
+    "domanda": "Che cosa è l'Umami?",
+    "risposte": [
+      "un sapore caratteristico impartito dal glutammato monosodico",
+      "un aroma tipico",
+      "un gusto primario",
+      "un gusto secondario"
+    ],
+    "corretta": "un sapore caratteristico impartito dal glutammato monosodico"
+  },
+  {
+    "domanda": "Aroma e Odore",
+    "risposte": [
+      "si percepiscono entrambi al naso",
+      "si percepiscono entrambi in bocca",
+      "l'odore si percepisce per via nasale diretta, mentre l'aroma per via retronasale",
+      "sono la stessa cosa e si percepiscono entrambi al naso"
+    ],
+    "corretta": "l'odore si percepisce per via nasale diretta, mentre l'aroma per via retronasale"
+  },
+  {
+    "domanda": "Chi è il panel leader?",
+    "risposte": [
+      "un assaggiatore preso a caso tra i partecipanti alla seduta di degustazione",
+      "è colui che coordina la seduta di degustazione",
+      "è la persona più anziana tra i partecipanti alla degustazione",
+      "è colui che serve i prodotti da degustare"
+    ],
+    "corretta": "è colui che coordina la seduta di degustazione"
+  },
+  {
+    "domanda": "Qual è stato il primo animale addomesticato dall'uomo?",
+    "risposte": [
+      "Il maiale. Già in epoca pre-romana infatti il suino viveva in allevamenti",
+      "Il primo animale sottoposto a domesticazione è il cane, addomesticato già prima del 10.000 a.C.. Solo successivamente furono addomesticati pecore, capre e maiale",
+      "Il cavallo in quanto fondamentale per gli spostamenti dell'uomo",
+      "L'asino"
+    ],
+    "corretta": "Il primo animale sottoposto a domesticazione è il cane, addomesticato già prima del 10.000 a.C.. Solo successivamente furono addomesticati pecore, capre e maiale"
+  },
+  {
+    "domanda": "Cosa determina la differenza tra suino pesante e suino leggero?",
+    "risposte": [
+      "L'alimentazione differenziata",
+      "La tipologia di allevamento cui vengono sottoposti sin dalla nascita",
+      "Il peso",
+      "La genetica"
+    ],
+    "corretta": "Il peso"
+  },
+  {
+    "domanda": "Quanto dura la fase di gestazione della scrofa?",
+    "risposte": [
+      "283 giorni come per i bovini",
+      "3 mesi, 3 settimane e 3 giorni",
+      "In tutto 3 mesi",
+      "Più di 3 mesi"
+    ],
+    "corretta": "3 mesi, 3 settimane e 3 giorni"
+  },
+  {
+    "domanda": "Qual è la funzione degli starter microbici?",
+    "risposte": [
+      "pilotare la fermentazione delle carni",
+      "azione conservante",
+      "esaltare la sapidità",
+      "conferire un sentore di affumicato"
+    ],
+    "corretta": "pilotare la fermentazione delle carni"
+  },
+  {
+    "domanda": "Il salame Felino è un prodotto a...",
+    "risposte": [
+      "carne trita, crudo, fermentato e non affumicato",
+      "pezzo anatomico intero, crudo, affumicato",
+      "carne trita, crudo, non fermentato e non affumicato",
+      "carne trita, cotta, non fermentato e non affumicato"
+    ],
+    "corretta": "carne trita, crudo, fermentato e non affumicato"
+  },
+  {
+    "domanda": "Ordina i seguenti marchi di garanzia dal più rigoroso al meno rigoroso.",
+    "risposte": [
+      "IGP, DOP, STG, PAT",
+      "DOP, IGP, PAT, STG",
+      "DOP, IGP, STG, PAT",
+      "STG, DOP, PAT, IGP"
+    ],
+    "corretta": "DOP, IGP, STG, PAT"
+  },
+  {
+    "domanda": "Quale ape impiega più tempo a svilupparsi e \"sfarfallare\"?",
+    "risposte": [
+      "Regia",
+      "Fuco",
+      "Operaia",
+      "Nutrice"
+    ],
+    "corretta": "Fuco"
+  },
+  {
+    "domanda": "Quale tra queste api non perde il pungiglione se punge?",
+    "risposte": [
+      "Regina",
+      "Fuco",
+      "Operaia",
+      "Guerriera"
+    ],
+    "corretta": "Regina"
+  },
+  {
+    "domanda": "Cosa si intende con il termine \"bottinatura\"?",
+    "risposte": [
+      "L'attività delle api di ricerca e raccolta delle risorse nel territorio",
+      "La capacità delle api di orientarsi nel territorio",
+      "La difesa del nettare raccolto",
+      "L'attività di deposito del nettare raccolto all'interno delle celle dei favi"
+    ],
+    "corretta": "L'attività delle api di ricerca e raccolta delle risorse nel territorio"
+  },
+  {
+    "domanda": "Cos'è un miele millefiori?",
+    "risposte": [
+      "una miscela di mieli di origine italiana",
+      "un miele di cui non si conosce la provenienza",
+      "un miele composto da nettari di diversa origine botanica senza che uno di questi prevalga in maniera percentualmente significante",
+      "un miele monoflora"
+    ],
+    "corretta": "un miele composto da nettari di diversa origine botanica senza che uno di questi prevalga in maniera percentualmente significante"
+  },
+  {
+    "domanda": "La cristallizzazione del miele è",
+    "risposte": [
+      "un processo che si verifica solamente in caso di contaminazione e contraffazione del miele",
+      "un processo naturale dato principalmente dalla composizione zuccherina del miele",
+      "un processo che si verifica in caso di fermentazione del miele",
+      "un processo che rende il miele non commestibile"
+    ],
+    "corretta": "un processo naturale dato principalmente dalla composizione zuccherina del miele"
+  },
+  {
+    "domanda": "L'aroma del formaggio è causato anche dalla demolizione, causata dal caglio o dall'acidificazione:",
+    "risposte": [
+      "delle sostanze azotate (proteine)",
+      "dei sali minerali",
+      "degli enzimi (endogeni)",
+      "delle vitamine"
+    ],
+    "corretta": "delle sostanze azotate (proteine)"
+  },
+  {
+    "domanda": "Tra i microrganismi caseari (utili) sono compresi:",
+    "risposte": [
+      "Gli stafilococchi",
+      "Il clostridium botulinum",
+      "I batteri psicrotrofi",
+      "I batteri lattici"
+    ],
+    "corretta": "I batteri lattici"
+  },
+  {
+    "domanda": "Il caglio:",
+    "risposte": [
+      "è solo di origine animale",
+      "è solo di origine vegetale",
+      "causa una coagulazione presamica (o enzimatica) delle proteine",
+      "causa una coagulazione acida (0 lattica) delle proteine"
+    ],
+    "corretta": "causa una coagulazione presamica (o enzimatica) delle proteine"
+  },
+  {
+    "domanda": "L'erborinatura di un formaggio:",
+    "risposte": [
+      "è un difetto",
+      "può essere naturale oppure dovuta a muffe selezionate che vengono aggiunte al latte",
+      "è presente solo nella pasta dei formaggi",
+      "è presente solo nelle croste dei formaggi"
+    ],
+    "corretta": "può essere naturale oppure dovuta a muffe selezionate che vengono aggiunte al latte"
+  },
+  {
+    "domanda": "L'operazione preparatoria di una conserva che determina la suddivisione di un lotto in sotto-lotti aventi dimensioni o pesi omogenei si chiama:",
+    "risposte": [
+      "mondatura",
+      "calibratura",
+      "degasatura",
+      "liofilizzazione"
+    ],
+    "corretta": "calibratura"
+  },
+  {
+    "domanda": "Il riso seminato in acqua:",
+    "risposte": [
+      "emette prima la radichetta e poi il coleoptile",
+      "emette prima il coleoptile e poi la radichetta",
+      "contemporaneamente coleoptile e radichetta",
+      "se la temperatura è bassa, prima la radichetta"
+    ],
+    "corretta": "emette prima il coleoptile e poi la radichetta"
+  },
+  {
+    "domanda": "Il fusto dell'orzo è formato da:",
+    "risposte": [
+      "internodi e stomi",
+      "nodi e stoloni",
+      "nodi e stomi",
+      "nodi e internodi"
+    ],
+    "corretta": "nodi e internodi"
+  },
+  {
+    "domanda": "La fase di levata nel frumento avviene:",
+    "risposte": [
+      "appena dopo la fase di botticella",
+      "appena prima della fioritura",
+      "dopo la germinazione ma prima dell'accestimento",
+      "dopo l'accestimento"
+    ],
+    "corretta": "dopo l'accestimento"
+  },
+  {
+    "domanda": "La semina su sodo permette:",
+    "risposte": [
+      "di ridurre l'infestazione di malerbe",
+      "di ridurre la presenza di patogeni",
+      "di ridurre i costi legati alle lavorazioni del terreno",
+      "di ridurre i costi legati alle fertilizzazioni"
+    ],
+    "corretta": "di ridurre i costi legati alle lavorazioni del terreno"
+  },
+  {
+    "domanda": "Una pianta di mais in stress idrico:",
+    "risposte": [
+      "è più soggetta all'attacco di insetti",
+      "ha maggiori probabilità di sviluppare micotossine",
+      "è meno suscettibile all'attacco di micotossine",
+      "è più resistente all'attacco della piralide"
+    ],
+    "corretta": "ha maggiori probabilità di sviluppare micotossine"
+  },
+  {
+    "domanda": "L'aratura serve per:",
+    "risposte": [
+      "rompere la suola delle risaie",
+      "affinare il terreno",
+      "permettere il drenaggio delle acque meteoriche",
+      "aumentare la porosità del terreno, incorporare residui e concimi"
+    ],
+    "corretta": "aumentare la porosità del terreno, incorporare residui e concimi"
+  },
+  {
+    "domanda": "La preparazione del letto di semina serve per:",
+    "risposte": [
+      "rompere la suola delle risaie",
+      "ripristinare la sofficità dello strato superficiale in modo da permettere la crescita",
+      "permettere il drenaggio delle acque meteoriche",
+      "aumentare la porosità del terreno, incorporare residui e concimi"
+    ],
+    "corretta": "ripristinare la sofficità dello strato superficiale in modo da permettere la crescita"
+  },
+  {
+    "domanda": "In malerbologia la selettività é:",
+    "risposte": [
+      "la predilezione di una pianta per un ambiente specifico",
+      "la capacità di una pianta di vivere in sommersione",
+      "la capacità di controllare solo le infestanti senza danneggiare la coltura",
+      "la capacità di una malerba di resistere ad un trattamento"
+    ],
+    "corretta": "la capacità di controllare solo le infestanti senza danneggiare la coltura"
+  },
+  {
+    "domanda": "Qual è il nome scientifico del riso è:",
+    "risposte": [
+      "Zea mays",
+      "Triticum durum",
+      "Glycine max",
+      "Oryza sativa"
+    ],
+    "corretta": "Oryza sativa"
+  },
+  {
+    "domanda": "La piralide è un insetto che può causare gravi danni su:",
+    "risposte": [
+      "sorgo",
+      "orzo",
+      "mais",
+      "tutte le colture autunno-vernine"
+    ],
+    "corretta": "mais"
+  },
+  {
+    "domanda": "I vitelli nella vitellaia:",
+    "risposte": [
+      "devono vedersi ma non toccarsi",
+      "devono potersi vedere ed essere in contatto fisico",
+      "devono essere isolati tra di loro",
+      "devono rimanere in contatto solo durante i primi 10 giorni"
+    ],
+    "corretta": "devono potersi vedere ed essere in contatto fisico"
+  },
+  {
+    "domanda": "Per il benessere animale:",
+    "risposte": [
+      "gli animali non devono essere macellati prima del pieno sviluppo",
+      "devono essere garantite le 5 libertà fondamentali",
+      "devono essere garantite le 3 libertà fondamentali",
+      "l'allevatore si impegna a curare gli animali nel modo migliore possibile"
+    ],
+    "corretta": "devono essere garantite le 5 libertà fondamentali"
+  },
+  {
+    "domanda": "Il miglior orientamento di una stalla:",
+    "risposte": [
+      "è est - ovest",
+      "è nord - sud",
+      "è nord - sud con apertura principale rivolta verso ovest",
+      "è in funzione dei venti prevalenti"
+    ],
+    "corretta": "è est - ovest"
+  },
+  {
+    "domanda": "Nell'allevamento semibrado:",
+    "risposte": [
+      "gli animali vengono allevati senza recinzioni",
+      "non è prevista integrazione alimentare",
+      "sono predisposti ricoveri per il riparo durante la stagione fredda",
+      "è solitamente utilizzato per le bovine da latte"
+    ],
+    "corretta": "sono predisposti ricoveri per il riparo durante la stagione fredda"
+  },
+  {
+    "domanda": "Il paddock di una stalla è:",
+    "risposte": [
+      "una zona confinata ma all'aperto",
+      "una zona confinata al chiuso",
+      "una zona all'aperto e senza barriere",
+      "l'infermeria per gli animali malari"
+    ],
+    "corretta": "una zona confinata ma all'aperto"
+  },
+  {
+    "domanda": "I caratteri genetici",
+    "risposte": [
+      "Hanno probabilità diverse di essere trasmessi",
+      "Hanno tutti la stessa probabilità di essere trasmessi",
+      "su cui si effettua selezione genetica sono sempre trasmessi alla progenie",
+      "su cui si effettua selezione genetica sono difficilmente trasmessi alla progenie"
+    ],
+    "corretta": "Hanno probabilità diverse di essere trasmessi"
+  },
+  {
+    "domanda": "Con la tecnica dell'Embryo transfer i gameti",
+    "risposte": [
+      "possono essere impiantati solo nella femmina da cui sono stati prelevati gli ovuli",
+      "possono essere impiantati in individuo di sesso maschile",
+      "possono essere impiantati in un individuo differente dai genitori",
+      "possono essere impiantati solo in uno dei genitori da cui sono stati prelevati gli ovuli"
+    ],
+    "corretta": "possono essere impiantati in individuo di sesso maschile"
+  },
+  {
+    "domanda": "In zootecnia lo Steaming Up",
+    "risposte": [
+      "é un metodo per scaldare la vitellaia",
+      "è un periodo di preparazione alla successiva fase di asciutta",
+      "è un periodo di preparazione al parto e alla successiva fase di lattazione",
+      "é un periodo di preparazione all'inseminazione strumentale"
+    ],
+    "corretta": "è un periodo di preparazione al parto e alla successiva fase di lattazione"
+  },
+  {
+    "domanda": "La fienagione",
+    "risposte": [
+      "Puó avvenire solamente per i prati stabili in montagna",
+      "Può essere condotta solo su prati di graminacee prevede l'essiccazione del foraggio sfruttando l'energia del sole e l'aria",
+      "Prevede l'essiccazione attraverso la combustione di combustibili fossili",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "Può essere condotta solo su prati di graminacee prevede l'essiccazione del foraggio sfruttando l'energia del sole e l'aria"
+  },
+  {
+    "domanda": "La granella di sorgo",
+    "risposte": [
+      "Può essere usata tal quale nella razione di un animale",
+      "Può essere usata nella razione di un animale solo previa tostatura",
+      "non può essere usata a causa del contenuto di durrina",
+      "Può essere usata nella razione di un animale solo previa sgusciatura e fioccatura"
+    ],
+    "corretta": "Può essere usata tal quale nella razione di un animale"
+  },
+  {
+    "domanda": "Qual è la scorciatoia da tastiera per copiare il contenuto di una cella?",
+    "risposte": [
+      "CtrI+C",
+      "Ctri+X",
+      "CtrI+V",
+      "Ctrl+A"
+    ],
+    "corretta": "CtrI+C"
+  },
+  {
+    "domanda": "Qual è lo scopo principale della funzione CERCA.VERT in Excel?",
+    "risposte": [
+      "Trovare il valore massimo in un intervallo di celle.",
+      "Trovare il valore medio di un intervallo di celle",
+      "Trovare un valore specifico in una colonna e restituire un valore corrispondente dalla stessa riga in un'altra colonna",
+      "Trovare il numero di celle vuote in un intervallo di colonne."
+    ],
+    "corretta": "Trovare un valore specifico in una colonna e restituire un valore corrispondente dalla stessa riga in un'altra colonna"
+  },
+  {
+    "domanda": "Quale tipo di grafico è migliore per rappresentare dati temporali?",
+    "risposte": [
+      "Torta",
+      "Barre",
+      "Linea",
+      "Area"
+    ],
+    "corretta": "Linea"
+  },
+  {
+    "domanda": "Cosa sono le celle relative in una formula?",
+    "risposte": [
+      "Celle bloccate con una password",
+      "Celle con contenuti speciali",
+      "Celle che non possono essere modificate",
+      "Celle che si adattano alla loro posizione relativa nella formula"
+    ],
+    "corretta": "Celle che si adattano alla loro posizione relativa nella formula"
+  },
+  {
+    "domanda": "Qual è la funzione principale di una tabella pivot in Excel?",
+    "risposte": [
+      "Creare grafici a torta basati sui dati di un foglio di lavoro.",
+      "Fornire un'anteprima del documento prima della stampa",
+      "Sintetizzare e analizzare grandi quantità di dati da un foglio di lavoro, consentendo di estrarre informazioni utili attraverso l'aggregazione, la suddivisione e la visualizzazione dei dati",
+      "Impostare regole di formattazione condizionale per evidenziare automaticamente le celle con valori elevati."
+    ],
+    "corretta": "Fornire un'anteprima del documento prima della stampa"
+  },
+  {
+    "domanda": "Qual è la funzione di CONTA.SE in Excel?",
+    "risposte": [
+      "Conta il numero totale di celle nel foglio di lavoro",
+      "Conta il numero di celle vuote in un intervallo",
+      "Conta il numero di celle con un valore specifico in un intervallo",
+      "Conta il numero di celle colorate"
+    ],
+    "corretta": "Conta il numero di celle con un valore specifico in un intervallo"
+  },
+  {
+    "domanda": "Quali sono gli argomenti della funzione SE in Excel?",
+    "risposte": [
+      "Test, Se vero, Se Falso",
+      "Prova, Se vero, Se Falso",
+      "Test, Se vero",
+      "Prova, Se vero"
+    ],
+    "corretta": "Test, Se vero, Se Falso"
+  },
+  {
+    "domanda": "Quali tra questi non è un formato in Excel?",
+    "risposte": [
+      "Numero",
+      "Valuta",
+      "Matrice",
+      "Frazione"
+    ],
+    "corretta": "Matrice"
+  },
+  {
+    "domanda": "Quali sono i campi delle tabelle Pivot?",
+    "risposte": [
+      "Righe, ordine, valori, colonne",
+      "Righe, filtri, valori, colonne",
+      "Righe, filtri, funzione, colonne",
+      "Righe, ordine, funzione, colonne"
+    ],
+    "corretta": "Righe, filtri, valori, colonne"
+  },
+  {
+    "domanda": "Cosa fa l'opzione di incolla speciale \"trasponi\"?",
+    "risposte": [
+      "Copia e incolla una selezione di celle in diagonale",
+      "Copia e incolla una selezione di celle in ordine inverso",
+      "Copia e incolla una selezione di celle e mantiene il collegamento con le celle di origine",
+      "Copia e incolla una selezione di celle ruotati da righe in colonna e viceversa"
+    ],
+    "corretta": "Copia e incolla una selezione di celle ruotati da righe in colonna e viceversa"
+  },
+  {
+    "domanda": "Il metodo classico dei vini spumanti si base sulla rifermentazione in:",
+    "risposte": [
+      "autoclave",
+      "bottiglia",
+      "barrique",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "bottiglia"
+  },
+  {
+    "domanda": "Durante la maturazione delle uve, gli zuccheri tendono:",
+    "risposte": [
+      "A diminuire",
+      "Ad aumentare",
+      "Rimane costante",
+      "Non ci sono zuccheri nelle uve"
+    ],
+    "corretta": "Ad aumentare"
+  },
+  {
+    "domanda": "I responsabili dell'astringenza di un vino sono:",
+    "risposte": [
+      "i tannini",
+      "i semi",
+      "gli antociani",
+      "gli acidi"
+    ],
+    "corretta": "i tannini"
+  },
+  {
+    "domanda": "Affinamento di un vino in un contenitore di legno. Si avrà minore maggior impatto legnoso in:",
+    "risposte": [
+      "Barrique",
+      "Botte",
+      "Tonneaux",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "Barrique"
+  },
+  {
+    "domanda": "La fermentazione alcolica di un vino è condotta dai:",
+    "risposte": [
+      "Acetobacter",
+      "Saccharomyces cerevisiae",
+      "Oenococcus oeni",
+      "Nessuna delle precedenti"
+    ],
+    "corretta": "Saccharomyces cerevisiae"
+  },
+  {
+    "domanda": "Analizziamo le componenti della bacca. Dell'endocarpo, troviamo:",
+    "risposte": [
+      "La buccia",
+      "I vinaccioli",
+      "i raspi",
+      "la polpa"
+    ],
+    "corretta": "I vinaccioli"
+  },
+  {
+    "domanda": "Il ciclo annuale della vite è",
+    "risposte": [
+      "Il ciclo invernale della vite",
+      "Il ciclo della vite di una pianta di vite",
+      "Il ciclo che si ripete ogni anno della pianta di vite",
+      "La vite non ha un ciclo annuale"
+    ],
+    "corretta": "Il ciclo che si ripete ogni anno della pianta di vite"
+  },
+  {
+    "domanda": "La svinatura è:",
+    "risposte": [
+      "La pigiatura delle uve",
+      "La torchiatura delle uve",
+      "La diraspatura delle uve",
+      "La separazione del mosto fiore dalle bucce esauste che poi verranno pressate"
+    ],
+    "corretta": "La separazione del mosto fiore dalle bucce esauste che poi verranno pressate"
+  },
+  {
+    "domanda": "La follatura è",
+    "risposte": [
+      "La misurazione del grado zuccherino.",
+      "La reidratazione del lievito.",
+      "L'eliminazione dei semi del mosto.",
+      "La rottura del cappello di bucce che si forma all'inizio della fermentazione alcolica"
+    ],
+    "corretta": "La rottura del cappello di bucce che si forma all'inizio della fermentazione alcolica"
+  },
+  {
+    "domanda": "Cosa sono le fecce di un vino?",
+    "risposte": [
+      "I profumi di un vino",
+      "I tannini del vino",
+      "gas del vino",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "nessuna delle precedenti"
+  },
+  {
+    "domanda": "Il caffè è una drupa ottenuto dalla pianta delle coffee appartenente al genere?",
+    "risposte": [
+      "Rubiacee",
+      "Rubiconde",
+      "Arabuste",
+      "Santos"
+    ],
+    "corretta": "Rubiacee"
+  },
+  {
+    "domanda": "Quanto è il contenuto massimo di caffeina nel decaffeinato?",
+    "risposte": [
+      "0,1%",
+      "1%",
+      "1.5 %",
+      "2 %"
+    ],
+    "corretta": "0,1%"
+  },
+  {
+    "domanda": "In base al tempo di estrazione i caffe possono definirsi \"Sottoestratto”",
+    "risposte": [
+      "Se l'estrazione di un caffè avviene in 15°",
+      "Se l'estrazione di un caffè avviene in 50°",
+      "Se l'estrazione di un caffè avviene in 30°",
+      "Se l'estrazione di un caffè avviene in 25"
+    ],
+    "corretta": "Se l'estrazione di un caffè avviene in 15°"
+  },
+  {
+    "domanda": "In base al tempo di estrazione i caffè possono definirsi \"Sovraestratto”",
+    "risposte": [
+      "Se l'estrazione di un caffè avviene in 15°",
+      "Se l'estrazione di un caffè avviene in 50°",
+      "Se l'estrazione di un caffè avviene in 30°",
+      "Se l'estrazione di un caffè avviene in 25"
+    ],
+    "corretta": "Se l'estrazione di un caffè avviene in 50°"
+  },
+  {
+    "domanda": "Qual è il contenuto di caffeina all'interno della tipologia Arabica?",
+    "risposte": [
+      "dal 1% al 2%",
+      "dal 1.1 % al 1,7%",
+      "dal 2% al 4%",
+      "dal 4% al 6%"
+    ],
+    "corretta": "dal 1.1 % al 1,7%"
+  },
+  {
+    "domanda": "Qual è il contenuto di caffeina nel chicco di Robusta?",
+    "risposte": [
+      "dal 1% al 2 %",
+      "dal 1.1 % al 1,7%",
+      "dal 2% al 4%",
+      "dal 4% al 6%"
+    ],
+    "corretta": "dal 2% al 4%"
+  },
+  {
+    "domanda": "La coffea arabica si coltiva ad un'altitudine variabile;",
+    "risposte": [
+      "dai 200 ai 600 metri s.L.m.",
+      "dai 500 ai 900 metri s.l.m.",
+      "dai 900 ai 2000 metri s.l.m.",
+      "dai 2000 ai 3000 metri s.l.m."
+    ],
+    "corretta": "dai 900 ai 2000 metri s.l.m."
+  },
+  {
+    "domanda": "La coffea robusta si coltiva ad un'altitudine variabile:",
+    "risposte": [
+      "dai 200 ai 600 metri s.l.m.",
+      "dai 500 ai 900 metri s.l.m.",
+      "dai 900 ai 2000 metri s.l.m.",
+      "dai 2000 ai 3000 metri s.l.m."
+    ],
+    "corretta": "dai 200 ai 600 metri s.l.m."
+  },
+  {
+    "domanda": "Le macine si dividono in?",
+    "risposte": [
+      "Piane e coniche",
+      "Coniche e convesse",
+      "Piane e convesse",
+      "Dritte e triangolari"
+    ],
+    "corretta": "Piane e coniche"
+  },
+  {
+    "domanda": "Quali sono i due metodi di raccolta del caffe?",
+    "risposte": [
+      "Peeling e string",
+      "Picking e stripping",
+      "Pooling e surfing",
+      "Sketing e Boarding"
+    ],
+    "corretta": "Picking e stripping"
+  },
+  {
+    "domanda": "Per “nutrizione” si intende:",
+    "risposte": [
+      "il processo di assunzione degli alimenti",
+      "solamente il processo di digestione e assorbimento nell'apparato digerente",
+      "un insieme di processi biologici subito da qualsiasi alimento dopo essere stato ingerito",
+      "solo il processo di utilizzazione dei principi nutritivi e non l'eliminazione delle scorie."
+    ],
+    "corretta": "un insieme di processi biologici subito da qualsiasi alimento dopo essere stato ingerito"
+  },
+  {
+    "domanda": "La scienza dell'alimentazione.",
+    "risposte": [
+      "Può indubbiamente essere definita come una scienza multidisciplinare",
+      "Non attiene alla medicina veterinaria",
+      "Non attiene all'alimentazione animale",
+      "Non attiene all'economia e alla sociologia"
+    ],
+    "corretta": "Può indubbiamente essere definita come una scienza multidisciplinare"
+  },
+  {
+    "domanda": "L'alimentazione:",
+    "risposte": [
+      "è intesa come il mero atto dell'introduzione del cibo",
+      "deve essere intesa non solo come l'atto di introduzione del cibo. Comprende infatti anche i momenti in cui l'individuo sceglie e prepara ciò che poi mangerà",
+      "è intesa come un modello di assunzione alimentare avente caratteristiche restrittive",
+      "prevede un unico modello di assunzione di principi nutritivi valido per uomo/donna di qualsiasi età"
+    ],
+    "corretta": "deve essere intesa non solo come l'atto di introduzione del cibo. Comprende infatti anche i momenti in cui l'individuo sceglie e prepara ciò che poi mangerà"
+  },
+  {
+    "domanda": "La parola \"LARN\" indica:",
+    "risposte": [
+      "Livelli alimentazione razionale neonati",
+      "Livelli di assunzione di riferimento nutrienti ed energia",
+      "Livelli di alimentazione riferito alla nazione",
+      "Livello di assunzione e ripartizione nutrienti"
+    ],
+    "corretta": "Livelli di assunzione di riferimento nutrienti ed energia"
+  },
+  {
+    "domanda": "I nutrienti si dividono in:",
+    "risposte": [
+      "Macronutrienti, micronutrienti, macronutriente non energetico",
+      "Lipidi, protidi, glucidi",
+      "Micronutrienti e macronutrienti; l'acqua non è considerata in quanto non apporta energia",
+      "Vitamine e sali minerali"
+    ],
+    "corretta": "Macronutrienti, micronutrienti, macronutriente non energetico"
+  },
+  {
+    "domanda": "I principali disaccaridi sono:",
+    "risposte": [
+      "Amido e cellulosa",
+      "Amilosio (glucosio + trealosio), maltosio (glucosio + glucosio)",
+      "Maltosio (glucosio + glucosio), lattosio (galattosio + glucosio), saccarosio (glucosio + fruttosio)",
+      "Saccarosio (glucosio + fruttosio) e galattosio (lattosio + glucosio)"
+    ],
+    "corretta": "Maltosio (glucosio + glucosio), lattosio (galattosio + glucosio), saccarosio (glucosio + fruttosio)"
+  },
+  {
+    "domanda": "Un grammo di proteine assicura all'organismo:",
+    "risposte": [
+      "4 kcal",
+      "7 kcal",
+      "9 kcal",
+      "Nessuna delle precedenti è corretta."
+    ],
+    "corretta": "4 kcal"
+  },
+  {
+    "domanda": "Nell'alimentazione di un individuo adulto in buono stato di salute:",
+    "risposte": [
+      "si possono preferire i lipidi di origine animale",
+      "si devono privilegiare i lipidi di origine vegetale (con particolare riferimento all'olio evo) rispetto ai lipidi di origine animale",
+      "si devono privilegiare i lipidi ottenuti dal maiale (strutto, lardo, pancetta, guanciale)",
+      "possono essere assunte grandi dosi di lipidi in quanto la struttura corporea tende a consumarli rapidamente"
+    ],
+    "corretta": "si devono privilegiare i lipidi di origine vegetale (con particolare riferimento all'olio evo) rispetto ai lipidi di origine animale"
+  },
+  {
+    "domanda": "Sulla dieta mediterranea.",
+    "risposte": [
+      "Si tratta di un concetto applicabile prettamente allo stile alimentare",
+      "Si tratta di uno stile alimentare di tipo vegetariano",
+      "Fa parte del Patrimonio immateriale dell'Unesco dal 2015",
+      "Deve essere intesa come concetto antropologico che unisce corretta alimentazione, cultura e sostenibilità"
+    ],
+    "corretta": "Deve essere intesa come concetto antropologico che unisce corretta alimentazione, cultura e sostenibilità"
+  },
+  {
+    "domanda": "La digestione dei protidi",
+    "risposte": [
+      "Avviene sin dalla bocca ad opera dell'amilasi salivare (azione digerente nei confronti del glutine contenuto in pane e pasta)",
+      "Avviene nell'intestino tenue ad opera della peptidina",
+      "Avviene parzialmente nello stomaco quindi si completa nell'intestino tenue",
+      "Prevede la scissione delle proteine in amminoacidi che saranno poi distribuiti all'organismo per mezzo del sistema linfatico"
+    ],
+    "corretta": "Avviene parzialmente nello stomaco quindi si completa nell'intestino tenue"
+  },
+  {
+    "domanda": "Quante Kcal fornisce 1 g di carboidrati:",
+    "risposte": [
+      "7 Kcal",
+      "9 Kcal",
+      "4 Kcal",
+      "0 Kcal"
+    ],
+    "corretta": "4 Kcal"
+  },
+  {
+    "domanda": "Come si chiamano gli acidi grassi di origine vegetale?",
+    "risposte": [
+      "acidi grassi insaturi",
+      "acidi grassi saturi",
+      "nessuna risposta è corretta",
+      "entrambe le risposte sono corrette"
+    ],
+    "corretta": "acidi grassi insaturi"
+  },
+  {
+    "domanda": "A quanti grammi corrisponde una porzione di frutta?",
+    "risposte": [
+      "100 g",
+      "150 g",
+      "200 g",
+      "300 g"
+    ],
+    "corretta": "150 g"
+  },
+  {
+    "domanda": "A quanto corrisponde una unità alcolica?",
+    "risposte": [
+      "1 birra da 330 ml",
+      "un bicchiere di vino da 125 ml",
+      "un bicchierino si superalcolico da 40 ml",
+      "tutte le precedenti"
+    ],
+    "corretta": "tutte le precedenti"
+  },
+  {
+    "domanda": "Quali alimenti vengono esclusi nella dieta ovo-vegetariana?",
+    "risposte": [
+      "carne, pesce, latticini",
+      "carne, pesce, uova",
+      "carne, pesce, uova, latticini",
+      "carne, pesce, latticini, legumi"
+    ],
+    "corretta": "carne, pesce, latticini"
+  },
+  {
+    "domanda": "Quale di questi è un allergene?",
+    "risposte": [
+      "peperoni",
+      "crostacei",
+      "aceto",
+      "anidride carbonica"
+    ],
+    "corretta": "crostacei"
+  },
+  {
+    "domanda": "Quale di questi è un pasto bilanciato contenente tutti i macronutrienti?",
+    "risposte": [
+      "pasta integrale con sugo di zucchine, un cucchiaio di olio EVO, macedonia di frutta",
+      "carne di vitello alla piastra con pane, un cucchiaio di olio EVO",
+      "cous cous con pollo al curry e melanzane, un cucchiaio di olio EVO, uva",
+      "zuppa di farro e ceci, un cucchiaio di olio evo, mela"
+    ],
+    "corretta": "cous cous con pollo al curry e melanzane, un cucchiaio di olio EVO, uva"
+  },
+  {
+    "domanda": "Quante volte alla settimana andrebbero consumati i legumi in una dieta onnivora?",
+    "risposte": [
+      "massimo 1 volta",
+      "almeno una volta al giorno",
+      "non ci sono delle frequenze consigliate",
+      "circa 3 volte alla settimana"
+    ],
+    "corretta": "circa 3 volte alla settimana"
+  },
+  {
+    "domanda": "Quale delle seguenti informazioni sulla celiachia è corretta?",
+    "risposte": [
+      "la celiachia è un'allergia alla pasta",
+      "esistono vari gradi di celiachia, si può essere più o meno celiaci",
+      "l'unica terapia ad oggi esistente è la dieta senza glutine",
+      "si manifesta solo in bambini fino ai 5 anni"
+    ],
+    "corretta": "l'unica terapia ad oggi esistente è la dieta senza glutine"
+  },
+  {
+    "domanda": "Quali sono le vitamine liposolubili?",
+    "risposte": [
+      "tutte le vitamine",
+      "A,D,E,K",
+      "nessuna vitamina",
+      "B,C"
+    ],
+    "corretta": "A,D,E,K"
+  },
+  {
+    "domanda": "I codici a barre si distinguono in",
+    "risposte": [
+      "Lineari e multidimensionali",
+      "Orizzontali e verticali",
+      "Lineari e non lineari",
+      "Numerici ed alfabetici"
+    ],
+    "corretta": "Lineari e multidimensionali"
+  },
+  {
+    "domanda": "Le componenti fondamentali del sistemi RAD ed IRID sono",
+    "risposte": [
+      "Ricevitore e Microfono",
+      "Tag e ricevitore",
+      "Tag e FAG",
+      "Tag e codice a barre"
+    ],
+    "corretta": "Tag e ricevitore"
+  },
+  {
+    "domanda": "L'interoperabilità dei sistemi 4.0 in ambito agrifood si basa:",
+    "risposte": [
+      "sulla compatibilità dei linguaggi di codice",
+      "sulla visualizzazione di nodi",
+      "su database cloud",
+      "sulla condivisione di nodi"
+    ],
+    "corretta": "sulla compatibilità dei linguaggi di codice"
+  },
+  {
+    "domanda": "La block chain applicata al settore agrifood:",
+    "risposte": [
+      "consente di rafforzare il sistema di tracciabilità cogente e volontaria",
+      "consente di rafforzare il sistema di tracciabilità cogente",
+      "consente di rafforzare il sistema di tracciabilità volontaria",
+      "consente di rafforzare solo il sistema di intraziendale"
+    ],
+    "corretta": "consente di rafforzare il sistema di tracciabilità cogente e volontaria"
+  },
+  {
+    "domanda": "L'agricoltura 4.0 è, per definizione; basata su:",
+    "risposte": [
+      "automatizzare le scelte operative",
+      "migliorare le scelte operative da parte dell'operatore",
+      "raccogliere esclusivamente dati di processo",
+      "creare modelli neurali"
+    ],
+    "corretta": "migliorare le scelte operative da parte dell'operatore"
+  },
+  {
+    "domanda": "L'acqua per essere definita potabile deve presentarsi",
+    "risposte": [
+      "Pulita, sana, salubre",
+      "Limpida, fresca, insapore",
+      "Ricca di sali minerali, sigillata, colore chiaro",
+      "Venduta in bottiglia"
+    ],
+    "corretta": "Limpida, fresca, insapore"
+  },
+  {
+    "domanda": "L'acqua potabile ha un contenuto di sali minerali massimo di?",
+    "risposte": [
+      "1,7 g/L",
+      "1500 mg/L",
+      "500 mg/L",
+      "1000 mg/L"
+    ],
+    "corretta": "1500 mg/L"
+  },
+  {
+    "domanda": "L'acqua minerale è?",
+    "risposte": [
+      "Un'acqua potabile",
+      "Un'acqua con proprietà terapeutiche",
+      "Un'acqua con un contenuto in sali minimo di 50 mg/L",
+      "Un'acqua che non richiede autorizzazioni"
+    ],
+    "corretta": "Un'acqua con proprietà terapeutiche"
+  },
+  {
+    "domanda": "Il residuo fisso (R.F.) di un'acqua viene ottenuto a?",
+    "risposte": [
+      "100°",
+      "125°",
+      "180°",
+      "Superiore ai 1500 mg/l"
+    ],
+    "corretta": "180°"
+  },
+  {
+    "domanda": "La denominazione \"Acqua Minimamente Mineralizzata\" ha un R.F. pari a?",
+    "risposte": [
+      "Min. 50 mg./L",
+      "Max. 50 mg./L",
+      "Da 50 mg./. a 100 mg./.",
+      "Superiore ai 1500 mg/l"
+    ],
+    "corretta": "Max. 50 mg./L"
+  },
+  {
+    "domanda": "La denominazione \"Acqua Oligominerale\" ha un R.F. pari a?",
+    "risposte": [
+      "Min. 50 mg./l.",
+      "Max. 50 mg./.",
+      "Da 50 mg./. a 500 mg.l.",
+      "Superiore ai 1500 mg/l"
+    ],
+    "corretta": "Da 50 mg./. a 500 mg.l."
+  },
+  {
+    "domanda": "La denominazione \"Acqua Minerale\" ha un R.F. pari a?",
+    "risposte": [
+      "Min. 5000 mg./l",
+      "Max. 500 mg.1.",
+      "Da 500 mg.l. a 1500 mg./l.",
+      "Superiore ai 1500 mg/l"
+    ],
+    "corretta": "Da 500 mg.l. a 1500 mg./l."
+  },
+  {
+    "domanda": "Circa un quarto delle emissioni globali di CO2eq è causato da:",
+    "risposte": [
+      "voli aerei del privati",
+      "agricoltura per allevamenti",
+      "trasporti",
+      "energia"
+    ],
+    "corretta": "agricoltura per allevamenti"
+  },
+  {
+    "domanda": "Come si chiama il sito web messo a punto dal ricercatore Ed Hawkins, dove osserviamo immagini che variano dal blu al rosso, mostrando quanto il pianeta continua a scaldarsi:",
+    "risposte": [
+      "show your stripes",
+      "show don't tell",
+      "climate hype",
+      "stripes for everyone"
+    ],
+    "corretta": "show your stripes"
+  },
+  {
+    "domanda": "Quali sono gli impatti ambientali associati alla produzione di carne?",
+    "risposte": [
+      "produce una quantità significativa di scarti e rifiuti.",
+      "contribuisce all'inquinamento ambientale",
+      "la principale causa di disinformazione",
+      "può causare crisi idriche e siccità,"
+    ],
+    "corretta": "la principale causa di disinformazione"
+  },
+  {
+    "domanda": "Ogni anno, nel mondo, viene sprecato circa un terzo della produzione mondiale di:",
+    "risposte": [
+      "sughero",
+      "carta",
+      "plastica",
+      "cibo"
+    ],
+    "corretta": "cibo"
+  },
+  {
+    "domanda": "Dal punto di vista della provenienza le acque si distinguono in:",
+    "risposte": [
+      "Acque meteoriche, Acque sorgive, Acque superficiali",
+      "Acque minerali, Acque potabili, Acque industriali",
+      "Acque agricole, Acque reflue, Acque Salate",
+      "Acque salutari, Acque benefiche, Acque inquinate"
+    ],
+    "corretta": "Acque meteoriche, Acque sorgive, Acque superficiali"
+  },
+  {
+    "domanda": "In relazione all'utilizzo e alla destinazione le acque si suddividono in:",
+    "risposte": [
+      "Acque meteoriche, Acque sorgive, Acque superficiali.",
+      "Acque minerali, Acque potabili, Acque industriali",
+      "Acque Ferme, Acque Dolci, Acque Salate",
+      "Acque salutari, Acque benefiche, Acque inquinat"
+    ],
+    "corretta": "Acque minerali, Acque potabili, Acque industriali"
+  },
+  {
+    "domanda": "Per essere destinate alla produzione di acque potabili, le acque dolci superficiali sono classificate dalle Regioni nelle categorie Al, A2 e A3,secondo le caratteristiche fisiche, chimiche e microbiologiche; di conseguenza sono sottoposte a trattamenti diversi quale tra queste definizione è appartenente alla Categoria A3:",
+    "risposte": [
+      "Trattamento fisico semplice e disinfezione",
+      "Trattamento fisico e chimico normale e disinfezione",
+      "Trattamento fisico e chimico spinto, affinazione e disinfezione",
+      "Trattamento fisico e chimico basso e disinfezione"
+    ],
+    "corretta": "Trattamento fisico e chimico spinto, affinazione e disinfezione"
+  },
+  {
+    "domanda": "Quale sequenza di operazioni si adopera nel redigere un manuale di autocontrollo haccp?",
+    "risposte": [
+      "Definizione delle fasi di lavorazione/processo, analisi dei pericoli e indicazione delle misure preventive, definizione degli indici di rischio IR, individuazione degli eventuali CCP corrispondenti alla fase",
+      "risposta alle domande dell'albero delle decisioni ed individuazione dei CCP",
+      "Definizione di un gruppo HACCP, formazione delle persone coinvolte, individuazione dei CCP",
+      "definizione delle buone pratiche operative GMP, definizione dei prerequisiti PRP, individuazione dei CCP"
+    ],
+    "corretta": "Definizione delle fasi di lavorazione/processo, analisi dei pericoli e indicazione delle misure preventive, definizione degli indici di rischio IR, individuazione degli eventuali CCP corrispondenti alla fase"
+  },
+  {
+    "domanda": "Definire la differenza tra rischio e pericolo",
+    "risposte": [
+      "il pericolo è la probabilità che il rischio si manifesti",
+      "il rischio è la probabilità che il pericolo avvenga",
+      "rischio è sempre presente e misurabile il pericolo invece bisogna sempre definirlo",
+      "i pericoli appartengono a due tipologie: fisico, microbiologico; il rischio appartiene alla tipologia della probabilità"
+    ],
+    "corretta": "il rischio è la probabilità che il pericolo avvenga"
+  },
+  {
+    "domanda": "Significato dell'acronimo M.O.C.A.",
+    "risposte": [
+      "Moduli Oggettivi per il Calcolo Alimentare",
+      "Mente e Occhi per il Calcolo Alimentare",
+      "Metodo Oggettivo la definizione del Contatto Alimentare",
+      "Materiali e Oggetti a Contatto con gli Alimenti"
+    ],
+    "corretta": "Materiali e Oggetti a Contatto con gli Alimenti"
+  },
+  {
+    "domanda": "Gli indumenti da lavoro e quelli personali vanno conservati in scompartimenti separati:",
+    "risposte": [
+      "Per impedire che gli indumenti personali possano contaminare gli abiti da lavoro",
+      "Non e necessario",
+      "Per evitare che gli abiti da lavoro insudicino gli indumenti personali",
+      "Per mantenere in ordine gli abiti da lavoro insieme alle scarpe"
+    ],
+    "corretta": "Per impedire che gli indumenti personali possano contaminare gli abiti da lavoro"
+  },
+  {
+    "domanda": "Cosa si intende per albero delle decisioni",
+    "risposte": [
+      "Un albero di dimensioni \"rettangolari\" dove la diagonale più lunga è la giusta decisione da prendere",
+      "Una serie di domande con risposta variabile SI-NO, la risposta alle quali, può definire una fase di processo come un CCP",
+      "L'albero delle gerarchie aziendali dove il rappresentante legale decide sulla sicurezza alimentare della propria attività",
+      "Una serie di domande alle quali si deve rispondere sempre SI per la definizione dei punti critici"
+    ],
+    "corretta": "Una serie di domande con risposta variabile SI-NO, la risposta alle quali, può definire una fase di processo come un CCP"
+  },
+  {
+    "domanda": "Nella pulizia dei pavimenti, se prima di disinfettare non si pulisce bene il pavimento:",
+    "risposte": [
+      "E' sufficiente usare più disinfettante",
+      "Non cambia nulla tanto poi si usa il disinfettante",
+      "il trattamento di disinfezione avrà efficacia nulla",
+      "il disinfettante aderirà meno velocemente al pavimento"
+    ],
+    "corretta": "il trattamento di disinfezione avrà efficacia nulla"
+  },
+  {
+    "domanda": "Come si possono evitare le contaminazioni crociate?",
+    "risposte": [
+      "Osservando scrupolosamente il manuale di Buone Pratiche Operative (BPO-GMP)",
+      "Usando le stesse superfici di lavoro per preparazione diverse",
+      "Usando diverse superfici per le stesse preparazioni",
+      "Non lavandosi le mani dopo ogni preparazione"
+    ],
+    "corretta": "Osservando scrupolosamente il manuale di Buone Pratiche Operative (BPO-GMP)"
+  },
+  {
+    "domanda": "Indicare quali sono i requisiti strutturali di un laboratorio/locale per la conformità alla",
+    "risposte": [
+      "manipolazione degli alimenti",
+      "Finestre trasparenti",
+      "Presenza di rapporto aereo-illuminante pari 1/8 della superficie piana",
+      "Pavimentazione in ceramica senza fughe",
+      "Verniciatura delle pareti di colore bianco"
+    ],
+    "corretta": "Presenza di rapporto aereo-illuminante pari 1/8 della superficie piana"
+  },
+  {
+    "domanda": "Quali sono i parametri , moltiplicando i quali, si ottiene l'indice di rischio I.R.?",
+    "risposte": [
+      "Probabilitá, gravitá, pericolositá",
+      "Probabilitá, gravitá, rilevabilitá",
+      "Probabilitá, rischiositá, pericolositá",
+      "Gravitá, frequenza, rilevabilitá"
+    ],
+    "corretta": "Gravitá, frequenza, rilevabilitá"
+  },
+  {
+    "domanda": "La normativa in tema di alimenti e bevande di ispirazione Europea riguarda:",
+    "risposte": [
+      "Tutti i comparti dalla produzione alla vendita",
+      "Solo la produzione primaria",
+      "Tutte le industrie alimentari che processano prodotti da forno",
+      "Tutti i comparti alimentari (produzione, confezionamento, deposito, trasporto, vendita, somministrazione) compresa la produzione primaria"
+    ],
+    "corretta": "Tutti i comparti alimentari (produzione, confezionamento, deposito, trasporto, vendita, somministrazione) compresa la produzione primaria"
+  },
+  {
+    "domanda": "Indicare quali standard Volontari vengono implementati nelle aziende alimentari per certificare al consumatore la propria corretta gestione della sicurezza alimentare:",
+    "risposte": [
+      "UNI EN ISO 9001:2015 (Sistema di gestione per la qualitá)",
+      "I.F.S. e/o B.R.C. (international Food standard - British Retail consortium global standard)",
+      "UNI EN ISO 14001:2015 (sistema di Gestione Ambientale)",
+      "BIO ICEA (certificazione biologica)"
+    ],
+    "corretta": "I.F.S. e/o B.R.C. (international Food standard - British Retail consortium global standard)"
+  },
+  {
+    "domanda": "La disinfezione nel settore della sicurezza alimentare",
+    "risposte": [
+      "a) serve per distruggere i germi patogeni",
+      "b) serve per distruggere tutti i germi",
+      "c) serve per distruggere tutti i parassiti",
+      "d) nessuna delle precedenti"
+    ],
+    "corretta": "a) serve per distruggere i germi patogeni"
+  },
+  {
+    "domanda": "Which of these is NOT a method to reduce Food Waste at home by consumers?",
+    "risposte": [
+      "Plan your meals so you buy only what you need",
+      "Understand 'Use by? And \"Best Before? dates",
+      "Share extra food with others",
+      "Make sure your refrigerator is always full of food"
+    ],
+    "corretta": "Make sure your refrigerator is always full of food"
+  },
+  {
+    "domanda": "Which of these foods are wasted the most by consumers in Italy?",
+    "risposte": [
+      "Meat and fish",
+      "Fresh fruit, vegetables and salads",
+      "Pasta and rice",
+      "Olives, nuts and dried beans"
+    ],
+    "corretta": "Fresh fruit, vegetables and salads"
+  },
+  {
+    "domanda": "Waste plastics in our oceans over time break down into smaller pieces that can end up in our food chain. What are these very small particles of plastic called that can be found in the food we eat?",
+    "risposte": [
+      "Micro beads",
+      "Microplastics",
+      "Plastic polymers",
+      "Thermoplastics"
+    ],
+    "corretta": "Microplastics"
+  },
+  {
+    "domanda": "Which is NOT a solution to the plastic waste crisis?",
+    "risposte": [
+      "Educate people to use less plastic in their daily lives",
+      "Arrange events using social media to remove waste from our beaches",
+      "Reduce the amount of single use plastic",
+      "Sell our plastic waste to the poorer countries of Asia and Africa"
+    ],
+    "corretta": "Sell our plastic waste to the poorer countries of Asia and Africa"
+  },
+  {
+    "domanda": "Which of these sentences DOES NOT describe the job of a Gastronomo?",
+    "risposte": [
+      "A person who understands the way to convert excellent raw materials into high quality products",
+      "Someone who has the knowledge of the regulations and laws in the food and drink sector.",
+      "An expert/specialist with multidisciplinary skills. A mediator between the production and the sales",
+      "A specialist in sustainability in the food chain who can help companies to reduce their carbon footprint"
+    ],
+    "corretta": "A specialist in sustainability in the food chain who can help companies to reduce their carbon footprint"
+  },
+  {
+    "domanda": "Which of these cooking techniques involves cooking food inside a sealed bag at a low temperature?",
+    "risposte": [
+      "Oven cooked.",
+      "Sous vide",
+      "Deep frying",
+      "Poaching"
+    ],
+    "corretta": "Sous vide"
+  },
+  {
+    "domanda": "Which best describes the soft skills required to be a Gastronomo?",
+    "risposte": [
+      "Computer knowledge, no self-confidence, works better alone",
+      "Language skills, poor communicator",
+      "Writing skills, aggressive, food and drink knowledge",
+      "Good communicator, self-motivated, flexible, good at problem solving"
+    ],
+    "corretta": "Good communicator, self-motivated, flexible, good at problem solving"
+  },
+  {
+    "domanda": "Secondo la cucina contemporanea italiana, quale di questi ingredienti è considerato essenziale per preservare la biodiversità gastronomica?",
+    "risposte": [
+      "Spezie importate",
+      "Prodotti industriali.",
+      "Prodotti locali freschi",
+      "Alimenti in scatola"
+    ],
+    "corretta": "Prodotti locali freschi"
+  },
+  {
+    "domanda": "In che anno Pellegrino Artusi pubblicò \"La scienza in cucina e l'arte di mangiar bene\"?",
+    "risposte": [
+      "1865",
+      "1871",
+      "1891",
+      "1911"
+    ],
+    "corretta": "1891"
+  },
+  {
+    "domanda": "François Pierre La Varenne pubblicò un libro (Le cuisinier François - 1651) che è considerato importante per l'evoluzione della cucina europea. Per quale ragione?",
+    "risposte": [
+      "Per l'antologia della cucina sintetica europea",
+      "Per l'introduzione dell'agresto nella pasticceria.",
+      "Per la trasmissione e l'influenza della cucina analitica",
+      "Per l'utilizzo dei prodotti inscatolati nella gastronomia nobiliare"
+    ],
+    "corretta": "Per la trasmissione e l'influenza della cucina analitica"
+  },
+  {
+    "domanda": "Da che momento inizia il fenomeno cucina nella storia del genere umano?",
+    "risposte": [
+      "Dalla scoperta del fuoco nel Paleolitico, dove si trasforma il cibo da crudo a cotto",
+      "Dall'invenzione della ceramica, nel Neolitico, dove si utilizza l'acqua per miscelare gli ingredienti",
+      "Dalla nascita delle società complesse, dove l'aria è elemento principe che contraddistingue",
+      "alimenti legati alla civiltà (pane e birra)",
+      "Dall'esigenza di conservare il surplus alimentare, dove gli organismi della terra aiutano",
+      "l'essere umano in questo compito"
+    ],
+    "corretta": "Dalla scoperta del fuoco nel Paleolitico, dove si trasforma il cibo da crudo a cotto"
+  },
+  {
+    "domanda": "Qual è un aspetto chiave delle tradizioni culinarie italiane, introdotto dal medioevo, che la distingue da altri sistemi gastronomici?",
+    "risposte": [
+      "L'introduzione delle patate nella cucina europea",
+      "L'uso delle spezie per la conservazione",
+      "L'invenzione della pasta",
+      "L'introduzione del riso"
+    ],
+    "corretta": "L'invenzione della pasta"
+  },
+  {
+    "domanda": "Secondo una teoria molto accreditata in quale luogo è nata l'agricoltura e l'allevamento?",
+    "risposte": [
+      "Nelle piane Mesoamericane",
+      "Lungo il fiume Giallo in Cina",
+      "Nella Mezzaluna Fertile",
+      "Nei Centri di Vavilov"
+    ],
+    "corretta": "Nei Centri di Vavilov"
+  },
+  {
+    "domanda": "La letteratura sulla gastronomia nel XV secolo in Italia spesso mirava a:",
+    "risposte": [
+      "Intrattenere le masse",
+      "Educare l'élite sull'etichetta del cibo",
+      "Diffondere messaggi religiosi attraverso il cibo",
+      "Promuovere il digiuno e l'astinenza"
+    ],
+    "corretta": "Educare l'élite sull'etichetta del cibo"
+  },
+  {
+    "domanda": "Con la diffusione dei modelli germanici nei territori del vecchio Impero Romano quale alimento viene introdotto come simbolo del potere?",
+    "risposte": [
+      "Carne",
+      "Pesce",
+      "Agrumi",
+      "Verdura"
+    ],
+    "corretta": "Carne"
+  },
+  {
+    "domanda": "Qual è il principio che guida l'innovazione nella cucina contemporanea italiana secondo Massimo Montanari?",
+    "risposte": [
+      "Innovazione nella continuità",
+      "Tradizione senza cambiamenti",
+      "Unità nella diversità",
+      "Modernità senza passato"
+    ],
+    "corretta": "Unità nella diversità"
+  },
+  {
+    "domanda": "Il calendario liturgico cristiano influenza il calendario alimentare nel sistema gastronomico",
+    "risposte": [
+      "europeo. In che modo?",
+      "In periodi di bianco (latte) e periodi di verde (verdure)",
+      "In periodi di magro (verdure) e in periodo di grasso (carne)",
+      "In periodi di freddo (gelato) e in periodi di caldo (zuppe)",
+      "In periodi di musica (vino) e periodi di silenzio (tisane)"
+    ],
+    "corretta": "In periodi di magro (verdure) e in periodo di grasso (carne)"
+  },
+  {
+    "domanda": "Per ottenere la buona cottura di un prodotto da forno lievitato,la camera di cottura dovrà avere:",
+    "risposte": [
+      "Impostata la temperatura al momento della cottura del prodotto",
+      "Raggiunto la temperatura in base agli standard di cottura ideali al prodotto",
+      "Impostata una temperatura standard ideale a tutti i prodotti del forno",
+      "Si può decidere qualsiasi procedura purché raggiunga la temperatura"
+    ],
+    "corretta": "Raggiunto la temperatura in base agli standard di cottura ideali al prodotto"
+  },
+  {
+    "domanda": "Quale tecnica di cottura permette per osmosi lo scambio di calore di un liquido",
+    "risposte": [
+      "o un gas",
+      "Convenzione",
+      "Irraggiamento",
+      "Conduzione",
+      "Microonde"
+    ],
+    "corretta": "Convenzione"
+  },
+  {
+    "domanda": "Con quale tecnica di cottura si può ridurre la perdita di sostanze nutrizionali",
+    "risposte": [
+      "come per esempio vitamine e sali minerali",
+      "Brasato",
+      "Grigliato",
+      "A vapore",
+      "Bollotto"
+    ],
+    "corretta": "A vapore"
+  },
+  {
+    "domanda": "Qual è la temperatura alla quale bisogna portare il cibo per consentire",
+    "risposte": [
+      "l'eliminazione di microrganismi",
+      "Almeno 10",
+      "Più di settanta",
+      "Più di quattro",
+      "Cinquanta"
+    ],
+    "corretta": "Più di settanta"
+  },
+  {
+    "domanda": "Per cuocere una carne di secondo taglio tipo ossobuco o spezzatino, quale",
+    "risposte": [
+      "metodo di cottura e indicata",
+      "Per concentrazione",
+      "Per espansione",
+      "Per osmosi",
+      "Irraggiamento"
+    ],
+    "corretta": "Per concentrazione"
+  },
+  {
+    "domanda": "In un impasto lievitato le variabili sulle lievitazione possono essere influenzate da fattori come per esempio",
+    "risposte": [
+      "Quantità",
+      "Temperatura",
+      "Nessuna",
+      "Tempo di lavorazione"
+    ],
+    "corretta": "Temperatura"
+  },
+  {
+    "domanda": "In quale tecnica di cottura si ottiene la reazione di maillard",
+    "risposte": [
+      "Grigliato",
+      "Bollito",
+      "Stufato",
+      "A vapore"
+    ],
+    "corretta": "Grigliato"
+  },
+  {
+    "domanda": "Qual è la temperatura ideale per la buona riuscita di un prodotto cotto in olio",
+    "risposte": [
+      "120 gradi",
+      "170 gradi",
+      "210 gradi",
+      "80 gradi"
+    ],
+    "corretta": "170 gradi"
+  },
+  {
+    "domanda": "Qual è la temperatura di cottura che una crema pasticcera non deve mai raggiungere:",
+    "risposte": [
+      "85 gradi",
+      "100 gradi",
+      "60 gradi",
+      "35 gradi"
+    ],
+    "corretta": "100 gradi"
+  },
+  {
+    "domanda": "Con I utilizzo dell abbattitore e' possibile ridurre in modo significativo la",
+    "risposte": [
+      "proliferazione batterica?",
+      "No",
+      "Si",
+      "Solo in alcuni casi",
+      "Solo in negativo"
+    ],
+    "corretta": "Si"
+  },
+  {
+    "domanda": "Cosa indica la sigla Denominazione di Origine Controllata DOC apposta su un vino?",
+    "risposte": [
+      "Che il vino è stato prodotto con uve biologiche",
+      "Che il vino è stato prodotto in una specifica regione geografica, secondo metodi tradizionali e con caratteristiche uniche legate al territorio",
+      "Che il vino è stato invecchiato per un periodo minimo di tempo",
+      "Che il vino è stato prodotto da un vitigno a bacca rossa"
+    ],
+    "corretta": "Che il vino è stato prodotto in una specifica regione geografica, secondo metodi tradizionali e con caratteristiche uniche legate al territorio"
+  },
+  {
+    "domanda": "Cosa distingue principalmente un vino Denominazione di Origine Controllata e Garantita",
+    "risposte": [
+      "DOCG da un vino Denominazione di Origine Controllata DOC?",
+      "Il vino DOCG ha un contenuto alcolico più elevato",
+      "Il vino DOCG è prodotto esclusivamente con uve bianche",
+      "Il vino DOCG è sottoposto a controlli più rigorosi e ha requisiti qualitativi superiori",
+      "Il vino DOCG può essere prodotto in qualsiasi regione d'italia"
+    ],
+    "corretta": "Il vino DOCG è sottoposto a controlli più rigorosi e ha requisiti qualitativi superiori"
+  },
+  {
+    "domanda": "Qual è la principale differenza tra un vino a Denominazione di Origine Controllata e",
+    "risposte": [
+      "Garantita DOCG e uno a Indicazione Geografica Tipica IGT?",
+      "Il vino DOCG ha un contenuto zuccherino residuo più basso.",
+      "Il vino DOCG è sottoposto a controlli più rigorosi e ha requisiti qualitativi superiori (corretta.",
+      "Il vino IGT può essere prodotto in qualsiasi regione d'Italia, mentre il DOCG è legato a zone",
+      "Il vino IGT ha un invecchiamento obbligatorio più lungo."
+    ],
+    "corretta": "Il vino DOCG è sottoposto a controlli più rigorosi e ha requisiti qualitativi superiori (corretta."
+  },
+  {
+    "domanda": "Cosa contraddistingue principalmente un prodotto con marchio Specialità Tradizionale",
+    "risposte": [
+      "Garantita STG?",
+      "Un'origine geografica specifica e delimitata",
+      "Un metodo di produzione tradizionale e una ricetta tipica, anche senza un legame stretto con un territorio specifico",
+      "Un invecchiamento obbligatorio di almeno 10 anni",
+      "Un contenuto biologico certificato"
+    ],
+    "corretta": "Un metodo di produzione tradizionale e una ricetta tipica, anche senza un legame stretto con un territorio specifico"
+  },
+  {
+    "domanda": "Cosa caratterizza principalmente un prodotto classificato come PAT (Prodotto",
+    "risposte": [
+      "Agroalimentare Tradizionale)?",
+      "Un elevato contenuto di zuccheri naturali",
+      "Una produzione industriale su larga scala",
+      "Un legame stretto con un territorio specífico e metodi di produzione tradizionali",
+      "Un'origine esclusivamente biologica"
+    ],
+    "corretta": "Un legame stretto con un territorio specífico e metodi di produzione tradizionali"
+  },
+  {
+    "domanda": "Cosa si intende per \"target\" in ambito marketing?",
+    "risposte": [
+      "Un prodotto specifico sul quale un'azienda fa una scommessa",
+      "Un gruppo specifico di consumatori a cui un'azienda vuole vendere i propri prodotti o servizi",
+      "Un obiettivo generico da raggiungere in un'azienda",
+      "Un'immagine pubblicitaria particolarmente efficace"
+    ],
+    "corretta": "Un gruppo specifico di consumatori a cui un'azienda vuole vendere i propri prodotti o servizi"
+  },
+  {
+    "domanda": "Cosa si intende per \"concept\" di un evento?",
+    "risposte": [
+      "Il luogo fisico in cui si svolge l'evento",
+      "L'idea principale, il tema o il messaggio che si vuole trasmettere attraverso l'evento",
+      "L'elenco degli invitati all'evento",
+      "Il budget totale stanziato per l'evento"
+    ],
+    "corretta": "L'idea principale, il tema o il messaggio che si vuole trasmettere attraverso l'evento"
+  },
+  {
+    "domanda": "Cosa si intende per “concept di un evento\"?",
+    "risposte": [
+      "Il luogo in cui si svolge l'evento.",
+      "La data e l'ora in cui si tiene l'evento.",
+      "La struttura e l'insieme delle attività che caratterizzano l'evento.",
+      "Il numero di partecipanti attesi all'evento."
+    ],
+    "corretta": "La struttura e l'insieme delle attività che caratterizzano l'evento."
+  },
+  {
+    "domanda": "Qual è la caratteristica distintiva di un evento Business-to-Business B2B?",
+    "risposte": [
+      "È un evento aperto al pubblico in generale, con l'obiettivo di aumentare la brand awareness.",
+      "È un evento organizzato da un'azienda per i propri dipendenti, finalizzato alla formazione e alla motivazione.",
+      "E un evento rivolto esclusivamente a professionisti di un settore specifico, con l'obiettivo di creare relazioni commerciali",
+      "È un evento gratuito, organizzato per generare traffico verso un sito web."
+    ],
+    "corretta": "E un evento rivolto esclusivamente a professionisti di un settore specifico, con l'obiettivo di creare relazioni commerciali"
+  },
+  {
+    "domanda": "Quale delle seguenti definizioni meglio descrive un evento Business-to-Consumer B2C?",
+    "risposte": [
+      "Un evento B2C è un evento organizzato da un'azienda per i propri dipendenti, con l'obiettivo di rafforzare il team building",
+      "Un evento B2C è un evento rivolto a un pubblico di consumatori finali, con l'obiettivo di promuovere un prodotto o un servizio",
+      "Un evento B2C è un evento organizzato tra aziende, con l'obiettivo di creare nuove partnership commerciali",
+      "Un evento B2C è un evento online, rivolto a un pubblico globale, con l'obiettivo di generare lead"
+    ],
+    "corretta": "Un evento B2C è un evento rivolto a un pubblico di consumatori finali, con l'obiettivo di promuovere un prodotto o un servizio"
+  },
+  {
+    "domanda": "Domanda: Quando nasce il primo supermercato in Italia?",
+    "risposte": [
+      "1945",
+      "1957",
+      "1962",
+      "1973"
+    ],
+    "corretta": "1957"
+  },
+  {
+    "domanda": "Cosa caratterizza la Distribuzione Organizzata?",
+    "risposte": [
+      "È composta da punti di vendita e filiali con una distribuzione capillare sul territorio",
+      "Prevede l'aggregazione di soggetti in origine piccoli in una «Centrale Acquisti»",
+      "Ha una gestione diretta dei punti vendita",
+      "Tutte le filiali sono controllate e gestite da un'azienda \"madre\""
+    ],
+    "corretta": "Prevede l'aggregazione di soggetti in origine piccoli in una «Centrale Acquisti»"
+  },
+  {
+    "domanda": "Quale è, tra questi, il formato distributivo con la superficie di vendita più grande?",
+    "risposte": [
+      "Il Supermercato",
+      "Il Superstore",
+      "Il Discount",
+      "Lo Specialista Casa e Persona"
+    ],
+    "corretta": "Il Superstore"
+  },
+  {
+    "domanda": "Chi è stato il leader di mercato in Italia tra i gruppi distributivi nel 2023?",
+    "risposte": [
+      "Esselunga",
+      "Conad",
+      "Coop",
+      "Selex Commerciale"
+    ],
+    "corretta": "Selex Commerciale"
+  },
+  {
+    "domanda": "Quale è uno dei compiti principali di un compratore (\"buyer\")?",
+    "risposte": [
+      "Sviluppare e implementare le strategie di comunicazione interna ed esterna per migliorare l'immagine dell'azienda di distribuzione",
+      "Definire i prodotti da inserire sulla base degli assortimenti dei Fornitori",
+      "Garantire che il servizio offerto ai clienti sia di alta qualità e che le operazioni all'interno del supermercato siano svolte correttamente",
+      "Organizzare e gestire il supermercato"
+    ],
+    "corretta": "Definire i prodotti da inserire sulla base degli assortimenti dei Fornitori"
+  },
+  {
+    "domanda": "Quale ruolo di marketing hanno le seguenti categorie di prodotto: pasta, biscotti, detersivi, acqua e olio?",
+    "risposte": [
+      "Ruolo di destinazione",
+      "Ruolo di routine",
+      "Ruolo di servizio",
+      "Ruolo di sviluppo"
+    ],
+    "corretta": "Ruolo di routine"
+  },
+  {
+    "domanda": "Quanti prodotti nuovi sono stati lanciati in Italia nel 2022 nella GDO (Grande Distribuzione Organizzata)?",
+    "risposte": [
+      "23.000",
+      "7.500",
+      "53.000",
+      "129.000"
+    ],
+    "corretta": "53.000"
+  },
+  {
+    "domanda": "Qual è il reparto più visitato nel 2023 (cioè che ha registrato la più alta percentuale di visitatori sul totale di quelli entrati)?",
+    "risposte": [
+      "Biscotti",
+      "Carni",
+      "Ortofrutta",
+      "Surgelati"
+    ],
+    "corretta": "Ortofrutta"
+  },
+  {
+    "domanda": "Come si definiscono i prodotti industriali unbranded/generici, o comunque di marche minori distribuite spesso in forma esclusiva da ciascun distributore, proposti con l'obiettivo di contrastare e/o prevenire lo sviluppo dei discount?",
+    "risposte": [
+      "Leader",
+      "Follower",
+      "Private label",
+      "Primi prezzi"
+    ],
+    "corretta": "Primi prezzi"
+  },
+  {
+    "domanda": "Quando si affronta il tema della definizione del layout di un punto di vendita vengono valutati una serie di indici. Come si definisce il rapporto tra il numero di consumatori che transitano nel reparto rispetto al numero di ingressi nel punto di vendita?",
+    "risposte": [
+      "Indice di passaggio",
+      "Indice di interesse",
+      "Indice di manipolazione",
+      "Indice di acquisto"
+    ],
+    "corretta": "Indice di passaggio"
+  },
+  {
+    "domanda": "Qual è il principale obiettivo della sostenibilità nella filiera alimentare?",
+    "risposte": [
+      "Ridurre i costi di produzione",
+      "Minimizzare l'impatto ambientale",
+      "Aumentare la durata dei prodotti sugli scaffali",
+      "Incrementare la produzione di massa"
+    ],
+    "corretta": "Minimizzare l'impatto ambientale"
+  },
+  {
+    "domanda": "Quale tra questi è un metodo migliore per ridurre l'impatto ambientale nella produzione alimentare?",
+    "risposte": [
+      "Utilizzare pratiche di agricoltura biologica rigenerativa",
+      "Aumentare l'uso di pesticidi naturali",
+      "Alternare le monoculture",
+      "Ridurre la biodiversità a favore dell'agricoltura biologica"
+    ],
+    "corretta": "Utilizzare pratiche di agricoltura biologica rigenerativa"
+  },
+  {
+    "domanda": "Perché la stagionalità è importante nella sostenibilità alimentare?",
+    "risposte": [
+      "Per garantire la disponibilità costante di prodotti importati",
+      "Per ridurre l'impatto ambientale legato alla produzione e al trasporto",
+      "Per aumentare i prezzi dei prodotti locali",
+      "Per migliorare la conservazione a lungo termine degli alimenti"
+    ],
+    "corretta": "Per ridurre l'impatto ambientale legato alla produzione e al trasporto"
+  },
+  {
+    "domanda": "Qual è un esempio di economia circolare nella filiera alimentare?",
+    "risposte": [
+      "Gettare i rifiuti organici in discarica",
+      "Utilizzare gli scarti alimentari per produrre compost",
+      "Usare imballaggi sterili monouso",
+      "Produrre alimenti con alti livelli di conservanti"
+    ],
+    "corretta": "Utilizzare gli scarti alimentari per produrre compost"
+  },
+  {
+    "domanda": "Quale delle seguenti pratiche aiuta a garantire la sostenibilità nelle catene di approvvigionamento alimentare?",
+    "risposte": [
+      "Ridurre i salari dei lavoratori agricoli",
+      "Promuovere il commercio equo e solidale nella mentalità win-win-win",
+      "Aumentare la produzione di alimenti ultra processati",
+      "Importare alimenti da paesi con regolamenti ambientali meno rigidi"
+    ],
+    "corretta": "Promuovere il commercio equo e solidale nella mentalità win-win-win"
+  },
+  {
+    "domanda": "Qual è una delle principali cause dello spreco alimentare lungo la filiera?",
+    "risposte": [
+      "Scarso uso di tecnologie avanzate",
+      "Sovrapproduzione e cattiva gestione dell'inventario",
+      "Miglioramento delle tecniche di conservazione",
+      "Riduzione della produzione agricola"
+    ],
+    "corretta": "Sovrapproduzione e cattiva gestione dell'inventario"
+  },
+  {
+    "domanda": "Come possono i consumatori contribuire alla sostenibilità alimentare?",
+    "risposte": [
+      "Acquistando solo prodotti importati o grandi marche",
+      "Scegliendo prodotti a chilometro zero",
+      "Consumando alimenti altamente confezionati",
+      "Aumentando il consumo di cibo a basso valore nutrizionale"
+    ],
+    "corretta": "Scegliendo prodotti a chilometro zero"
+  },
+  {
+    "domanda": "Quale tra questi materiali è il più sostenibile per l'imballaggio alimentare?",
+    "risposte": [
+      "Carta riciclata",
+      "Plastica monouso",
+      "Alluminio",
+      "Polistirolo"
+    ],
+    "corretta": "Carta riciclata"
+  },
+  {
+    "domanda": "Qual è una delle strategie per ridurre le emissioni di CO2 nella filiera alimentare?",
+    "risposte": [
+      "Incrementare i trasporti a lunga distanza",
+      "Ridurre il trasporto di merci tramite mezzi inquinanti",
+      "Aumentare l'uso di fertilizzanti chimici",
+      "Estendere la durata di conservazione dei prodotti"
+    ],
+    "corretta": "Ridurre il trasporto di merci tramite mezzi inquinanti"
+  },
+  {
+    "domanda": "Cosa si intende per \"impronta idrica\" di un alimento?",
+    "risposte": [
+      "La quantità di energia utilizzata per produrlo",
+      "Il peso del prodotto sul mercato",
+      "La quantità totale di acqua necessaria per produrlo",
+      "Il livello di gas serra emesso durante la produzione"
+    ],
+    "corretta": "La quantità totale di acqua necessaria per produrlo"
+  },
+  {
+    "domanda": "L'autonomia patrimoniale di una persona giuridica può essere:",
+    "risposte": [
+      "precisa o imprecisa",
+      "perfetta o imperfetta",
+      "vera o falsa",
+      "legittima o illegittima"
+    ],
+    "corretta": "perfetta o imperfetta"
+  },
+  {
+    "domanda": "Il Registro delle Imprese è tenuto presso",
+    "risposte": [
+      "la Camera di Commercio",
+      "la Prefettura",
+      "l'Archivio di Stato",
+      "l'Archivio Notarile"
+    ],
+    "corretta": "la Camera di Commercio"
+  },
+  {
+    "domanda": "Nella società in accomandita semplice i soci accomandanti rispondono per le obbligazioni sociali",
+    "risposte": [
+      "solidalmente",
+      "solo per la quota di capitale conferita",
+      "solo se così è stabilito nell'atto costitutivo",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "solo per la quota di capitale conferita"
+  },
+  {
+    "domanda": "La società in nome collettivo è",
+    "risposte": [
+      "una società di capitali",
+      "una società di persone",
+      "una cooperativa con fine mutualistico",
+      "una società per azioni"
+    ],
+    "corretta": "una società di persone"
+  },
+  {
+    "domanda": "Le società cooperative si distinguono dalle società lucrative:",
+    "risposte": [
+      "perché non svolgono attività economica",
+      "perché il loro scopo è prevalentemente mutualistico",
+      "perché possono essere costituite solo con un termine di durata finale",
+      "perché hanno un numero diverso di soci"
+    ],
+    "corretta": "perché il loro scopo è prevalentemente mutualistico"
+  },
+  {
+    "domanda": "Qual è il capitale minimo richiesto per la costituzione di una società per azioni?",
+    "risposte": [
+      "centoventimila euro",
+      "cinquantamila euro",
+      "duecentomila euro",
+      "diecimila euro"
+    ],
+    "corretta": "cinquantamila euro"
+  },
+  {
+    "domanda": "Nell'ordinamento italiano esistono società:",
+    "risposte": [
+      "di persone e di capitali",
+      "di persone e di cose",
+      "concrete ed astratte",
+      "interne ed esterne"
+    ],
+    "corretta": "di persone e di capitali"
+  },
+  {
+    "domanda": "L'avviamento di un'azienda è:",
+    "risposte": [
+      "il motore d'accensione dei macchinari",
+      "il suo codice postale di riferimento",
+      "la sua attitudine a produrre reddito",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "la sua attitudine a produrre reddito"
+  },
+  {
+    "domanda": "Qual è il capitale minimo richiesto per la costituzione di una società a responsabilità limitata?",
+    "risposte": [
+      "centoventimila euro",
+      "cinquantamila euro",
+      "duecentomila euro",
+      "diecimila euro"
+    ],
+    "corretta": "diecimila euro"
+  },
+  {
+    "domanda": "La procedura di liquidazione",
+    "risposte": [
+      "non esiste nel diritto italiano",
+      "è sempre facoltativa",
+      "serve per costituire la società",
+      "serve per estinguere la società"
+    ],
+    "corretta": "serve per estinguere la società"
+  },
+  {
+    "domanda": "On-line Meal delivery kits are",
+    "risposte": [
+      "A subscription service where customers are sent pre-portioned and sometimes partially prepared food ingredients with recipes to prepare home cooked meals",
+      "A service which allows consumers to have completely finished and cooked meals delivered to their house with no further cooking required",
+      "Where companies like Deliveroo deliver prepared meals to your home",
+      "A service that sends you fresh fruit and vegetables to your home"
+    ],
+    "corretta": "A subscription service where customers are sent pre-portioned and sometimes partially prepared food ingredients with recipes to prepare home cooked meals"
+  },
+  {
+    "domanda": "Which of these is a Molecular Gastronomy preparation technique?",
+    "risposte": [
+      "Spherification",
+      "Blast freezing",
+      "Cooking in boiling water",
+      "Oven cooked"
+    ],
+    "corretta": "Spherification"
+  },
+  {
+    "domanda": "What is a 'Pop Up Restaurant'?",
+    "risposte": [
+      "A temporary restaurant that often operates from an existing restaurant, home or former factory",
+      "A restaurant with no customers",
+      "A restaurant that plays pop music whilst customers eat",
+      "A restaurant that opens only at the weekends"
+    ],
+    "corretta": "A temporary restaurant that often operates from an existing restaurant, home or former factory"
+  },
+  {
+    "domanda": "Which of these sentences is the Past Simple tense",
+    "risposte": [
+      "We are continuing to work on the new menu for the restaurant",
+      "We'll have a new menu starting soon",
+      "We developed a new menu based on zero kilometres ingredients",
+      "We have a fantastic new menu starting this week"
+    ],
+    "corretta": "We developed a new menu based on zero kilometres ingredients"
+  },
+  {
+    "domanda": "Which of these sentences uses a modal verb for an obligation? The strongest modal verb possible",
+    "risposte": [
+      "Companies should try to be more sustainable",
+      "Companies must pay staff at the end of every month",
+      "Companies might employ extra staff during the summer",
+      "Companies may decide to give staff more holidays this year"
+    ],
+    "corretta": "Companies must pay staff at the end of every month"
+  },
+  {
+    "domanda": "Which of these sentences contains an irregular verb?",
+    "risposte": [
+      "We managed to use less packaging for our latest product",
+      "They used new technology to grow these vegetables",
+      "Yesterday I read a report on new Food Laws in Italy",
+      "They discovered a better way to produce their product using less plastic"
+    ],
+    "corretta": "Yesterday I read a report on new Food Laws in Italy"
+  },
+  {
+    "domanda": "Which of these verbs have irregular past participles?",
+    "risposte": [
+      "lose - spend - tell",
+      "manage - work - help",
+      "reduce - support - improve",
+      "increase - investigate - pollute"
+    ],
+    "corretta": "lose - spend - tell"
+  },
+  {
+    "domanda": "Which of these comparative and superlative adjectives are wrong?",
+    "risposte": [
+      "Modern - More modern - Most modern",
+      "Little - Littler - Littlest",
+      "New - Newer - Newest",
+      "Big - Bigger - Biggest"
+    ],
+    "corretta": "Little - Littler - Littlest"
+  },
+  {
+    "domanda": "Which of these sentences is the Past Continuous tense?",
+    "risposte": [
+      "l am working on a new project just now",
+      "He was meeting a new client before",
+      "I will be driving to Milan tomorrow afternoon",
+      "We are working on a new wine list for the restaurant"
+    ],
+    "corretta": "He was meeting a new client before"
+  },
+  {
+    "domanda": "Which of these sentences uses the Present Perfect tense? Remember for this tense we need to use the past participle of the verb.",
+    "risposte": [
+      "We will look at some new packaging concepts tomorrow",
+      "Yesterday I ate nothing all day",
+      "Next week I am going to Milan for a conference on food waste",
+      "Today we have eaten new types of cereal which are more resistant to drought"
+    ],
+    "corretta": "Today we have eaten new types of cereal which are more resistant to drought"
+  },
+  {
+    "domanda": "Which of these superlative adjectives is NOT correct?",
+    "risposte": [
+      "Italy produces the most wine in the world",
+      "London is the city with the most Michelin stars",
+      "Japan has the most big fish market in the world",
+      "Japan has the most interesting seafood dishes in the world"
+    ],
+    "corretta": "Japan has the most big fish market in the world"
+  },
+  {
+    "domanda": "Which of these Modal verbs is used as a recommendation to people?",
+    "risposte": [
+      "People must stop polluting the planet",
+      "People might eat insects in the future",
+      "People will become more sustainable in the future",
+      "People should eat less meat and more vegetables"
+    ],
+    "corretta": "People should eat less meat and more vegetables"
+  },
+  {
+    "domanda": "Which of these sentences is the Future Simple tense?",
+    "risposte": [
+      "This week I've eaten Chinese food",
+      "I'll be in Spain this time next year eating Tapas by the sea",
+      "I love to try new cuisines from around the world",
+      "I have never tried German food"
+    ],
+    "corretta": "I'll be in Spain this time next year eating Tapas by the sea"
+  },
+  {
+    "domanda": "Il metanolo presente nei distillati:",
+    "risposte": [
+      "è prodotto esclusivamente dal lievito",
+      "si forma solo per via chimica - enzimatica",
+      "deriva principalmente dalla materia prima agricola vegetale",
+      "non è sottoposto a limite legale di concentrazione"
+    ],
+    "corretta": "deriva principalmente dalla materia prima agricola vegetale"
+  },
+  {
+    "domanda": "L'orzo distico impiegato per la birra è designato scientificamente con il nome di:",
+    "risposte": [
+      "Hordeum vulgare hexasticum inaequale",
+      "Hordeum vulgare distichum",
+      "Hordeum aestivum",
+      "Hordeum vulgare hexasticum aequale"
+    ],
+    "corretta": "Hordeum vulgare distichum"
+  },
+  {
+    "domanda": "Ai fini della produzione di malto per la produzione di birra e distillati:",
+    "risposte": [
+      "le proteine della granella d'orzo devono essere minori al 12%",
+      "le proteine della granella d'orzo devono essere maggiori 12%",
+      "nella granella d'orzo è necessaria alta dotazione in B-glucani",
+      "nella granella d'orzo è necessaria alta dotazione in tannini"
+    ],
+    "corretta": "le proteine della granella d'orzo devono essere minori al 12%"
+  },
+  {
+    "domanda": "Il lattosio è utilizzato:",
+    "risposte": [
+      "per incrementare il TAV delle birra",
+      "come antifermentativo per stabilizzare microbiologicamente la birra",
+      "per mantenere gusto dolce nella birra finita",
+      "come coadiuvante di filtrazione del mosto"
+    ],
+    "corretta": "come antifermentativo per stabilizzare microbiologicamente la birra"
+  },
+  {
+    "domanda": "Nella produzione dei mosti di birra e di mosti per la distillazione:",
+    "risposte": [
+      "La fermentazione alcolica primaria ha lo scopo principale di produrre alcol etilico",
+      "La fermentazione alcolica primaria ha lo scopo principale di produrre CO2",
+      "Non è mai consigliato recuperare la CO2, prodotta dalla fermentazione alcolica",
+      "La fermentazione alcolica secondaria ha lo scopo principale di produrre alcol"
+    ],
+    "corretta": "La fermentazione alcolica primaria ha lo scopo principale di produrre alcol etilico"
+  },
+  {
+    "domanda": "Il fenomeno della micro-ossigenazione determinato all'affinamento in legno è massimizzato in:",
+    "risposte": [
+      "barriques da 225L",
+      "tonneaux da 500L",
+      "tonneaux da 700L",
+      "botte grande da 10 ettolitri"
+    ],
+    "corretta": "barriques da 225L"
+  },
+  {
+    "domanda": "Il glicerolo è:",
+    "risposte": [
+      "un poliidrossichetone che riduce il corpo del fermentato/distillato",
+      "un polialcol che aumenta il corpo del fermentato/distillato",
+      "un cicloalcano che riduce il corpo del fermentato/distillato",
+      "un estere che aumenta il corpo del fermentato/distillato"
+    ],
+    "corretta": "un polialcol che aumenta il corpo del fermentato/distillato"
+  },
+  {
+    "domanda": "Gli esteri:",
+    "risposte": [
+      "sono composti tossici formati da lieviti e ceduti da erbe e spezie",
+      "sono composti tossici, anche se ingeriti in basse dosi",
+      "sono composti inorganici, presenti nei mosti ad alta soglia olfattiva",
+      "sono composti aromatici formati da lieviti e ceduti da erbe e spezie"
+    ],
+    "corretta": "sono composti aromatici formati da lieviti e ceduti da erbe e spezie"
+  },
+  {
+    "domanda": "Il luppolo nella produzione della birra e dei liquori ha scopo:",
+    "risposte": [
+      "solo aromatizzante",
+      "solo amaricante",
+      "sia aromatizzante, sia amaricante",
+      "solo antiossidante"
+    ],
+    "corretta": "sia aromatizzante, sia amaricante"
+  },
+  {
+    "domanda": "Il colore ambrato dei distillati e delle birre affinati in legno è dovuto a:",
+    "risposte": [
+      "alla quercetina ed altri flavonoidi derivati dalla distillazione",
+      "a geraniolo ed altri terpeni derivati dalla distillazione",
+      "all'acetato di etile ed altri esteri derivati dalla distillazione",
+      "alla quercetina ed altri flavonoidi derivati all'affinamento in legno"
+    ],
+    "corretta": "alla quercetina ed altri flavonoidi derivati all'affinamento in legno"
+  },
+  {
+    "domanda": "Qual è la funzione principale del magazzino in un ristorante?",
+    "risposte": [
+      "Preparare i piatti",
+      "Conservare gli alimenti",
+      "Accogliere i clienti",
+      "Lavorare la carne"
+    ],
+    "corretta": "Conservare gli alimenti"
+  },
+  {
+    "domanda": "Quali prodotti alimentari solitamente comportano costi più elevati per un ristorante?",
+    "risposte": [
+      "Cereali e legumi",
+      "Carne e pesce freschi",
+      "Frutta e verdura di stagione",
+      "Bevande analcoliche"
+    ],
+    "corretta": "Carne e pesce freschi"
+  },
+  {
+    "domanda": "Cosa si intende per \"costo variabile\" in un ristorante?",
+    "risposte": [
+      "Un costo che non cambia mai, indipendentemente dalla quantità di cibo venduta",
+      "Un costo che cambia in base alla quantità di cibo acquistata e venduta",
+      "Un costo legato all'affitto del locale",
+      "Un costo legato alle tasse"
+    ],
+    "corretta": "Un costo che cambia in base alla quantità di cibo acquistata e venduta"
+  },
+  {
+    "domanda": "Qual è l'importanza delle previsioni nelle attività di un ristorante?",
+    "risposte": [
+      "Permette di stimare i costi futuri",
+      "Aiuta a gestire meglio gli acquisti",
+      "Consente di pianificare il personale",
+      "Tutte le risposte precedenti"
+    ],
+    "corretta": "Tutte le risposte precedenti"
+  },
+  {
+    "domanda": "Un budget ben definito per un ristorante serve principalmente a:",
+    "risposte": [
+      "Stabilire gli obiettivi di vendita",
+      "Controllare le spese",
+      "Pianificare gli investimenti",
+      "Tutte le risposte precedenti"
+    ],
+    "corretta": "Tutte le risposte precedenti"
+  },
+  {
+    "domanda": "Qual è il prodotto più difficile da gestire in magazzino per un ristorante, anche da un punto di vista economico-gestionale?",
+    "risposte": [
+      "La pasta secca",
+      "Il pesce fresco",
+      "Le bottiglie d'acqua",
+      "Le patate"
+    ],
+    "corretta": "Il pesce fresco"
+  },
+  {
+    "domanda": "Cosa si intende per \"costo fisso\" in un ristorante?",
+    "risposte": [
+      "Un costo che cambia in base alla quantità di cibo venduta",
+      "Un costo legato all'acquisto degli ingredienti",
+      "Un costo che non cambia nel breve periodo, come l'affitto",
+      "Un costo legato al pagamento dei dipendenti"
+    ],
+    "corretta": "Un costo che non cambia nel breve periodo, come l'affitto"
+  },
+  {
+    "domanda": "Qual è lo strumento più utile per prevedere le vendite in un ristorante?",
+    "risposte": [
+      "il meteo",
+      "un calendario",
+      "i dati storici delle vendite",
+      "il dato del giorno precedente"
+    ],
+    "corretta": "i dati storici delle vendite"
+  },
+  {
+    "domanda": "Quali sono i fattori che influenzano maggiormente i costi di un ristorante?",
+    "risposte": [
+      "Il menù",
+      "La stagionalità dei prodotti",
+      "La location del ristorante",
+      "Tutte le risposte precedenti"
+    ],
+    "corretta": "Tutte le risposte precedenti"
+  },
+  {
+    "domanda": "Perché è importante gestire bene il magazzino di un ristorante?",
+    "risposte": [
+      "Per evitare sprechi alimentari",
+      "Per garantire la qualità dei prodotti",
+      "Per ottimizzare i costi",
+      "Tutte le risposte precedenti"
+    ],
+    "corretta": "Tutte le risposte precedenti"
+  },
+  {
+    "domanda": "Qual è il ruolo primario degli incentivi nella PAC per l'agricoltura biologica?",
+    "risposte": [
+      "Aumentare l'uso di fertilizzanti naturali",
+      "Favorire la conversione al biologico",
+      "Ridurre i controlli annuali",
+      "Ridurre i tempi di certificazione"
+    ],
+    "corretta": "Favorire la conversione al biologico"
+  },
+  {
+    "domanda": "Quale tecnica è vietata nella produzione biologica secondo la normativa UE?",
+    "risposte": [
+      "Uso di pesticidi naturali",
+      "Coltivazione idroponica",
+      "Preparazione di compost",
+      "Itticoltura"
+    ],
+    "corretta": "Coltivazione idroponica"
+  },
+  {
+    "domanda": "Quale segmento di consumatori acquista principalmente prodotti biologici?",
+    "risposte": [
+      "Over 60",
+      "Giovani tra i 25 e i 45 anni",
+      "Residenti in aree rurali",
+      "Famiglie con reddito basso"
+    ],
+    "corretta": "Giovani tra i 25 e i 45 anni"
+  },
+  {
+    "domanda": "Qual è uno degli obiettivi della strategia \"Farm to Fork\" dell'UE?",
+    "risposte": [
+      "Ridurre l'importazione da Paesi Terzi",
+      "Raggiungere il 25% della SAU a produzione biologica biologica entro il 2030",
+      "Incrementare l'uso di pesticidi naturali",
+      "Ridurre la produzione agricola europea"
+    ],
+    "corretta": "Raggiungere il 25% della SAU a produzione biologica biologica entro il 2030"
+  },
+  {
+    "domanda": "Quale è uno dei principi della normativa UE sull'etichettatura dei prodotti biologici?",
+    "risposte": [
+      "Obbligo di indicare l'origine degli ingredienti bio",
+      "Permesso di utilizzare ingredienti OGM",
+      "Uso esclusivo di packaging in carta",
+      "Esenzione dalle certificazioni per i grandi produttori"
+    ],
+    "corretta": "Obbligo di indicare l'origine degli ingredienti bio"
+  },
+  {
+    "domanda": "Quale pratica è tipica dell'agricoltura biologica per migliorare la fertilità del suolo?",
+    "risposte": [
+      "Uso di fertilizzanti chimici",
+      "Rotazione delle colture",
+      "Monocoltura intensiva",
+      "Uso di antibiotici"
+    ],
+    "corretta": "Rotazione delle colture"
+  },
+  {
+    "domanda": "A cosa serve il sistema di certificazione bio di gruppo?",
+    "risposte": [
+      "Favorisce le grandi aziende",
+      "Riduce i costi per piccoli produttori",
+      "È obbligatorio per gli allevamenti ittici",
+      "Non è previsto in Europa"
+    ],
+    "corretta": "Riduce i costi per piccoli produttori"
+  },
+  {
+    "domanda": "Qual è l'obiettivo principale della normativa UE sull'agricoltura biologica?",
+    "risposte": [
+      "Aumentare il profitto per gli agricoltori",
+      "Garantire l'uso di pesticidi naturali",
+      "Salvaguardare l'ambiente e la biodiversità",
+      "Aumentare la resa agricola"
+    ],
+    "corretta": "Salvaguardare l'ambiente e la biodiversità"
+  },
+  {
+    "domanda": "Qual è il simbolo che identifica i prodotti biologici certificati nell'UE?",
+    "risposte": [
+      "Una spiga di grano",
+      "Una foglia verde",
+      "Un sole giallo",
+      "Una stella blu"
+    ],
+    "corretta": "Una foglia verde"
+  },
+  {
+    "domanda": "Cosa rappresentano i Bio-distretti?",
+    "risposte": [
+      "Zone di protezione dell'ambiente",
+      "Aree rurali che promuovono il biologico",
+      "Regolamenti per l'esportazione dei prodotti bio",
+      "Certificati per il commercio di prodotti bio"
+    ],
+    "corretta": "Aree rurali che promuovono il biologico"
+  },
+  {
+    "domanda": "Quali colori stimolano l'acquisto impulsivo in un negozio?",
+    "risposte": [
+      "Verde e blu",
+      "Rosso e giallo",
+      "Nero e grigio",
+      "Bianco e marrone"
+    ],
+    "corretta": "Rosso e giallo"
+  },
+  {
+    "domanda": "Cosa si intende per \"aggregazioni merceologiche\"?",
+    "risposte": [
+      "Esposizione di prodotti correlati per soddisfare un bisogno",
+      "Aumentare il numero di articoli esposti su uno scaffale",
+      "Riduzione della quantità di prodotti in promozione",
+      "Creazione di spazi dedicati per promuovere un marchio"
+    ],
+    "corretta": "Esposizione di prodotti correlati per soddisfare un bisogno"
+  },
+  {
+    "domanda": "Quale è uno dei ruoli delle etichette nei punti vendita?",
+    "risposte": [
+      "Aumentano la visibilità dei prodotti più economici",
+      "Aiutano nella comunicazione del prodotto e del brand",
+      "Ridimensionano le aree espositive",
+      "Aumentano la quantità di prodotti in promozione"
+    ],
+    "corretta": "Aiutano nella comunicazione del prodotto e del brand"
+  },
+  {
+    "domanda": "Cos'è il visual merchandising?",
+    "risposte": [
+      "L'uso della pubblicità per promuovere prodotti",
+      "Lo studio dell'esposizione e presentazione dei prodotti",
+      "Una tecnica per ridurre i costi di esposizione",
+      "Un sistema per automatizzare le vendite"
+    ],
+    "corretta": "Lo studio dell'esposizione e presentazione dei prodotti"
+  },
+  {
+    "domanda": "Quale è il livello espositivo preferenziale per i prodotti a maggiore marginalità?",
+    "risposte": [
+      "Livello occhi",
+      "Livello basso",
+      "Livello alto",
+      "Livello mani"
+    ],
+    "corretta": "Livello occhi"
+  },
+  {
+    "domanda": "Che funzione svolge la disposizione dei reparti ortofrutta all'inizio del percorso di vendita?",
+    "risposte": [
+      "Offrire senso di freschezza e naturalità",
+      "Stimolare l'appetito",
+      "Aumentare il traffico nel negozio",
+      "Riempire velocemente il carrello della spesa"
+    ],
+    "corretta": "Offrire senso di freschezza e naturalità"
+  },
+  {
+    "domanda": "Quale tecnica di layout stimola l'esplorazione del negozio?",
+    "risposte": [
+      "Layout a griglia",
+      "Layout a pista o percorso obbligato",
+      "Layout libero o ad isola",
+      "Layout circolare"
+    ],
+    "corretta": "Layout libero o ad isola"
+  },
+  {
+    "domanda": "Qual è il ruolo dell'illuminazione nel visual merchandising?",
+    "risposte": [
+      "Aumentare il numero di prodotti esposti",
+      "Evidenziare oggetti e creare atmosfera",
+      "Fidelizzare i clienti",
+      "Eliminare la necessità di espositori"
+    ],
+    "corretta": "Evidenziare oggetti e creare atmosfera"
+  },
+  {
+    "domanda": "Qual è il vantaggio del layout a percorso obbligato?",
+    "risposte": [
+      "Permette ai clienti di vedere tutti i prodotti",
+      "Riduce il tempo di permanenza nel negozio",
+      "Aumenta il numero di casse",
+      "Riduce gli ingorghi e facilita il flusso delle persone"
+    ],
+    "corretta": "Permette ai clienti di vedere tutti i prodotti"
+  },
+  {
+    "domanda": "Sull'etichetta di un prodotto pre-confezionato, gli allergeni:",
+    "risposte": [
+      "Vanno indicati in modo facoltativo",
+      "Vanno indicati sul fronte dell'etichetta",
+      "Vanno ben evidenziati rispetto al resto del testo",
+      "Vanno scritti in colore rosso"
+    ],
+    "corretta": "Vanno ben evidenziati rispetto al resto del testo"
+  },
+  {
+    "domanda": "Il cacao si coltiva:",
+    "risposte": [
+      "su tutto il pianeta",
+      "nella fascia equatoriale del pianeta",
+      "solo in sud America",
+      "solo in Sud Africa"
+    ],
+    "corretta": "nella fascia equatoriale del pianeta"
+  },
+  {
+    "domanda": "La pianta del cacao porta il nome di:",
+    "risposte": [
+      "Theobroma bicolor",
+      "Theobroma cacao",
+      "Theobroma",
+      "Theobroma giaguar"
+    ],
+    "corretta": "Theobroma cacao"
+  },
+  {
+    "domanda": "In Venezuela il villaggio dei neri coltivatori di cacao si chiama :",
+    "risposte": [
+      "Chuao",
+      "Chuno",
+      "Aragua",
+      "San Martin"
+    ],
+    "corretta": "Chuao"
+  },
+  {
+    "domanda": "Quali sono le principali varietà del cacao:",
+    "risposte": [
+      "Amelonado, Forastero, Criollo",
+      "Criollo, Forastero, Trinitario",
+      "Trinitario, Bianchino, Criollo",
+      "Trinitario, Criollo, Ruby"
+    ],
+    "corretta": "Criollo, Forastero, Trinitario"
+  },
+  {
+    "domanda": "I fiori del cacao sono disposti sull'albero:",
+    "risposte": [
+      "Attaccati al tronco",
+      "Attaccati ai rami",
+      "La pianta del cacao non fa fiori",
+      "Attaccati sia al tronco che ai rami"
+    ],
+    "corretta": "Attaccati al tronco"
+  },
+  {
+    "domanda": "La maturazione del frutto del cacao avviene:",
+    "risposte": [
+      "Direttamente sull’albero",
+      "I frutti non maturano per una buona raccolta",
+      "Nelle celle frigorifere appositamente studiate",
+      "Nei sacchi di juta"
+    ],
+    "corretta": "Direttamente sull’albero"
+  },
+  {
+    "domanda": "La raccolta dei frutti avviene.",
+    "risposte": [
+      "Una volta all’anno",
+      "Ogni stagione",
+      "Due volte all’anno",
+      "Mano a mano che cadono a terra"
+    ],
+    "corretta": "Due volte all’anno"
+  },
+  {
+    "domanda": "Cosa sta per indicare la dicitura \"70%\" su una tavoletta di cioccolato:",
+    "risposte": [
+      "70% zucchero",
+      "70% burro cacao",
+      "70% massa cacao",
+      "70% di cacao in polvere alcalinizzato"
+    ],
+    "corretta": "70% massa cacao"
+  },
+  {
+    "domanda": "I principali modi per produrre i gianduiotti sono:",
+    "risposte": [
+      "A mano (spatolato)",
+      "Spatolato, estruso e stampato",
+      "Estruso",
+      "Spatolato e stampato"
+    ],
+    "corretta": "Spatolato, estruso e stampato"
+  },
+  {
+    "domanda": "Generalmente la temperatura per tostare il cacao è:",
+    "risposte": [
+      "di 100 °C",
+      "di 180 ° C",
+      "di 160 ° C",
+      "sotto i 100° C"
+    ],
+    "corretta": "di 160 ° C"
+  },
+  {
+    "domanda": "A quale periodo storico risalgono i primi Menu?",
+    "risposte": [
+      "400 a.C.",
+      "500 d.C",
+      "Medioevo",
+      "dopo il 1500"
+    ],
+    "corretta": "dopo il 1500"
+  },
+  {
+    "domanda": "La storia del Menu orbita intorno a quale principale cucina e servizio?",
+    "risposte": [
+      "tedesca",
+      "inglese",
+      "francese",
+      "spagnola"
+    ],
+    "corretta": "francese"
+  },
+  {
+    "domanda": "Quale tipologia di Menù propone a prezzo contenuto un menù completo con piatti a scelta su una gamma limitata, spesso comprensivo di bevanda e servizio?",
+    "risposte": [
+      "turistico",
+      "a tema",
+      "del giorno",
+      "etnico"
+    ],
+    "corretta": "turistico"
+  },
+  {
+    "domanda": "Quale di queste affermazioni è riconducibile alla tipologia di Menù à la Carte?",
+    "risposte": [
+      "riguardano essenzialmente i menù per banchetti",
+      "prevedono un certo numero di scelte per ogni gruppo di vivande",
+      "prevedono un'amplissima scelta di pietanze",
+      "nessuna delle precedenti"
+    ],
+    "corretta": "prevedono un certo numero di scelte per ogni gruppo di vivande"
+  },
+  {
+    "domanda": "Quale di queste figure è preposta a collaborare per la compilazione del menù?",
+    "risposte": [
+      "responsabile di cucina",
+      "responsabile di sala",
+      "responsabile dell'azienda",
+      "tutte e tre"
+    ],
+    "corretta": "tutte e tre"
+  },
+  {
+    "domanda": "Nella ristorazione gourmet di questo periodo storico mediamente quanti piatti sono proposti per ogni gruppo di portata?",
+    "risposte": [
+      "2/3",
+      "5/6",
+      "8/9",
+      "Più di 10"
+    ],
+    "corretta": "5/6"
+  },
+  {
+    "domanda": "Nel Menu del Ristorante Solferino, case history all'interno del corso, quanti piatti erano proposti per ogni gruppo di portata?",
+    "risposte": [
+      "4",
+      "7",
+      "8",
+      "10"
+    ],
+    "corretta": "7"
+  },
+  {
+    "domanda": "Nella fase programmatica di una nuova attività ristorativa, per la progettazione del Menù, quale di questi variabili terreste in considerazione?",
+    "risposte": [
+      "dimensione della struttura che ospiterà l'attività ristorativa",
+      "analisi della proposta dei concorrenti",
+      "ubicazione geografica",
+      "tutte e tre"
+    ],
+    "corretta": "tutte e tre"
+  },
+  {
+    "domanda": "In quale anno, con un Regio decreto, è fatto obbligo ai pubblici esercizi tenere esposte nel locale la licenza, l'autorizzazione e la tariffa dei prezzi?",
+    "risposte": [
+      "1840",
+      "1940",
+      "1960",
+      "1985"
+    ],
+    "corretta": "1940"
+  },
+  {
+    "domanda": "Cosa si intende per un \"piatto esca\"?",
+    "risposte": [
+      "una preparazione a base di pesce",
+      "un piatto in cui si ha più marginalità di guadagno",
+      "un piatto in cui si ha meno marginalità di guadagno",
+      "un piatto che fa percepire più allettanti quelli che sono nelle loro vicinanze"
+    ],
+    "corretta": "un piatto che fa percepire più allettanti quelli che sono nelle loro vicinanze"
+  }
+];
+
+let currentQuiz = [];
+let answers = [];
+let currentIndex = 0;
+let mode = "";
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function startQuiz(selectedMode) {
+  mode = selectedMode;
+  document.getElementById("start").classList.add("hidden");
+  answers = [];
+  currentIndex = 0;
+  if (mode === "normale") {
+    currentQuiz = shuffle(allQuestions).slice(0, 30).map(q => {
+      return {...q, risposte: shuffle(q.risposte)};
+    });
+  } else if (mode === "esame") {
+    currentQuiz = allQuestions.map(q => {
+      return {...q, risposte: shuffle(q.risposte)};
+    });
+  } else if (mode === "errori") {
+    let errate = JSON.parse(localStorage.getItem("errori") || "[]");
+    currentQuiz = allQuestions.filter(q => errate.includes(q.domanda)).slice(0, 15).map(q => {
+      return {...q, risposte: shuffle(q.risposte)};
+    });
+  }
+  document.getElementById("quiz").classList.remove("hidden");
+  renderQuestion();
+}
+
+function renderQuestion() {
+  renderNav();
+  const q = currentQuiz[currentIndex];
+  const quizDiv = document.getElementById("quiz");
+  quizDiv.innerHTML = "";
+
+  const header = document.createElement("h2");
+  header.textContent = `Domanda ${currentIndex + 1} di ${currentQuiz.length}`;
+  quizDiv.appendChild(header);
+
+  const domandaText = document.createElement("p");
+  domandaText.innerHTML = "<strong>" + q.domanda + "</strong>";
+  quizDiv.appendChild(domandaText);
+
+  q.risposte.forEach((r, i) => {
+    const btn = document.createElement("button");
+    btn.className = "btn";
+    btn.textContent = r;
+    btn.setAttribute("data-risposta", r);
+    btn.addEventListener("click", function () {
+      submitAnswer(this.getAttribute("data-risposta"));
+    });
+    quizDiv.appendChild(btn);
+    quizDiv.appendChild(document.createElement("br"));
+  });
+}
+
+function submitAnswer(risposta) {
+  const domanda = currentQuiz[currentIndex];
+  answers.push({
+    domanda: domanda.domanda,
+    risposte: domanda.risposte,
+    corretta: domanda.corretta,
+    selezionata: risposta
+  });
+  if (risposta !== domanda.corretta) {
+    let errori = JSON.parse(localStorage.getItem("errori") || "[]");
+    if (!errori.includes(domanda.domanda)) {
+      errori.push(domanda.domanda);
+      localStorage.setItem("errori", JSON.stringify(errori));
+    }
+  }
+  currentIndex++;
+  if (currentIndex < currentQuiz.length) {
+    renderQuestion();
+  } else {
+    document.getElementById("quiz").classList.add("hidden");
+    document.getElementById("confirm").classList.remove("hidden");
+  }
+}
+
+function showResults() {
+  document.getElementById("quiz").classList.add("hidden");
+  const container = document.getElementById("results");
+  let corrette = answers.filter(a => a.selezionata === a.corretta).length;
+  let html = `<h2>Risultato: ${corrette} / ${currentQuiz.length}</h2>`;
+  answers.forEach(r => {
+    html += `<div class='question'><p><strong>${r.domanda}</strong></p><ul>`;
+    r.risposte.forEach(opt => {
+      if (opt === r.corretta) {
+        html += `<li class='correct'>✔️ ${opt}</li>`;
+      } else if (opt === r.selezionata) {
+        html += `<li class='incorrect'>❌ ${opt}</li>`;
+      } else {
+        html += `<li>${opt}</li>`;
+      }
+    });
+    html += "</ul></div>";
+  });
+  html += `<button class='btn' onclick='location.reload()'>Ripeti quiz</button>`;
+  container.innerHTML = html;
+  container.classList.remove("hidden");
+}
+
+function reviewAnswers() {
+  document.getElementById("confirm").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  currentIndex = 0;
+  renderQuestion();
+}
+
+</script>
+<div id="nav" style="position:fixed;right:0;top:60px;padding:10px;background:#eee;height:90%;overflow-y:auto;width:120px;"></div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.getElementById("nav");
+  nav.addEventListener("click", function (e) {
+    if (e.target.tagName === "BUTTON" && e.target.dataset.index) {
+      currentIndex = parseInt(e.target.dataset.index);
+      renderQuestion();
+    }
+  });
+});
+
+function renderNav() {
+  let nav = document.getElementById("nav");
+  if (!nav) return;
+  nav.innerHTML = "";
+  currentQuiz.forEach((_, idx) => {
+    const btn = document.createElement("button");
+    btn.textContent = idx + 1;
+    btn.className = "btn";
+    btn.style.cssText = "width:100%; margin:2px 0;";
+    btn.dataset.index = idx;
+    nav.appendChild(btn);
+  });
+}
+
+function reviewAnswers() {
+  document.getElementById("confirm").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  currentIndex = 0;
+  renderQuestion();
+}
+
+</script>
+
+<div id="confirm" class="hidden">
+  <h2>Hai risposto a tutte le domande</h2>
+  <p>Vuoi consegnare il quiz o rivedere le risposte?</p>
+  <button class="btn" onclick="showResults()">Consegna</button>
+  <button class="btn" onclick="reviewAnswers()">Rivedi</button>
+</div>
+
+</body>
+</html>
